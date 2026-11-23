@@ -8,7 +8,7 @@ A static, dependency-free study lab with interactive drills across all five AZ-1
 - Networking: NSG troubleshooting and VNet peering
 - Monitoring and maintenance: metric alerts, VM backup, and vault workload selection
 
-Drag an action into the answer table, or tap the action and then its destination. Correct placements turn green. Incorrect placements leave the card in the selection pane and show an explanation with Microsoft Learn references.
+Drag an action into the answer table, or tap the action and then its destination. Correct placements turn green. The RSV workload challenge uses a larger inventory, XP, and streak scoring; it shows Microsoft Learn explanations only after a wrong placement.
 
 ## Live site
 
