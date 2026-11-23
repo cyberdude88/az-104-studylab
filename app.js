@@ -13,7 +13,9 @@ const learn={
   nsgTroubleshoot:'https://learn.microsoft.com/en-us/azure/virtual-network/diagnose-network-traffic-filter-problem',
   peering:'https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview',
   alerts:'https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/tutorial-metric-alert',
+  diskBackup:'https://learn.microsoft.com/en-us/azure/backup/disk-backup-faq',
   backup:'https://learn.microsoft.com/en-us/azure/backup/backup-azure-arm-vms',
+  vaultMatrix:'https://learn.microsoft.com/en-us/azure/backup/backup-support-matrix',
   vault:'https://learn.microsoft.com/en-us/azure/backup/backup-create-rs-vault'
 };
 const domains=[
@@ -21,7 +23,7 @@ const domains=[
   {id:'storage',name:'Implement and manage storage',weight:'15–20%',desc:'Storage accounts, redundancy, Azure Files, Blob Storage, identity, and access control.',games:['resiliency','adfiles']},
   {id:'compute',name:'Deploy and manage Azure compute resources',weight:'20–25%',desc:'Virtual machines, availability, scale sets, containers, and app hosting.',games:['vmResilience','vmOperations']},
   {id:'networking',name:'Implement and manage virtual networking',weight:'15–20%',desc:'Virtual networks, secure access, NSGs, connectivity, name resolution, and load balancing.',games:['nsgRules','vnetPeering']},
-  {id:'monitor',name:'Monitor and maintain Azure resources',weight:'10–15%',desc:'Azure Monitor metrics and alerts, logs, backup, restore, and recovery.',games:['alertBuild','backupPath']}
+  {id:'monitor',name:'Monitor and maintain Azure resources',weight:'10–15%',desc:'Azure Monitor metrics and alerts, logs, backup, restore, and recovery.',games:['alertBuild','backupPath','vaultSort']}
 ];
 const games={
   resiliency:{domain:'storage',title:'Storage resiliency path',sub:'Storage · Choose the account capability before redundancy',brief:'<b>Scenario:</b> TD1 and TD2 must remain available if one availability zone fails. Minimize cost and administration. Both accounts currently use <b>General-purpose v1</b>.',cards:[
@@ -87,7 +89,17 @@ const games={
     ['enable','Enable backup for the VM','enable','After selecting the vault and policy, enable backup to start protecting the VM.',learn.backup],
     ['delete','Delete the VM immediately after enabling backup','avoid','Deleting the workload is not required to configure protection and would remove the active VM being protected.',learn.backup],
     ['alert','Create a metric alert instead of a backup policy','avoid','A metric alert detects a condition and sends a response; it does not create VM recovery points.',learn.alerts]
-  ],rows:[['vault','1 · Backup destination','Choose the vault that stores recovery points.'],['policy','2 · Schedule and retention','Select the backup schedule and retention settings.'],['enable','3 · Protect the VM','Enable backup using the selected vault and policy.'],['avoid','Reject · Different action','Do not confuse alerting or deletion with backup setup.']],complete:'<strong>Lock it in:</strong> Select the Recovery Services vault, choose the backup policy, then enable protection for the VM.',memory:'<table><thead><tr><th>Component</th><th>Role</th></tr></thead><tbody><tr><td>Recovery Services vault</td><td>Stores backup data and recovery points.</td></tr><tr><td>Backup policy</td><td>Defines schedule and retention.</td></tr><tr><td>Enable backup</td><td>Starts protection for the VM.</td></tr></tbody></table>'}
+  ],rows:[['vault','1 · Backup destination','Choose the vault that stores recovery points.'],['policy','2 · Schedule and retention','Select the backup schedule and retention settings.'],['enable','3 · Protect the VM','Enable backup using the selected vault and policy.'],['avoid','Reject · Different action','Do not confuse alerting or deletion with backup setup.']],complete:'<strong>Lock it in:</strong> Select the Recovery Services vault, choose the backup policy, then enable protection for the VM.',memory:'<table><thead><tr><th>Component</th><th>Role</th></tr></thead><tbody><tr><td>Recovery Services vault</td><td>Stores backup data and recovery points.</td></tr><tr><td>Backup policy</td><td>Defines schedule and retention.</td></tr><tr><td>Enable backup</td><td>Starts protection for the VM.</td></tr></tbody></table>'},
+  vaultSort:{domain:'monitor',title:'Choose the vault: RSV or Backup vault',sub:'Maintain · Match the datasource to its vault',brief:'<b>Scenario:</b> Azure Backup is the backup service. For each datasource, choose the vault type Azure Backup uses. Sort each workload into a Recovery Services vault (RSV) or a Backup vault.',cards:[
+    ['azurevm','Azure virtual machine','rsv','Azure VM backups are orchestrated and stored through a Recovery Services vault.',learn.vaultMatrix],
+    ['fileshare','Azure Files share','rsv','Azure file share backup is a Recovery Services vault workload.',learn.vaultMatrix],
+    ['sqlvm','SQL Server running in an Azure VM','rsv','SQL Server workloads in Azure VMs use a Recovery Services vault.',learn.vaultMatrix],
+    ['hana','SAP HANA running in an Azure VM','rsv','SAP HANA workloads in Azure VMs use a Recovery Services vault.',learn.vaultMatrix],
+    ['manageddisk','Azure managed disk','backupVault','Azure Disk Backup stores recovery points in a Backup vault.',learn.diskBackup],
+    ['blob','Azure Blob Storage','backupVault','Azure Backup for Azure Blobs uses a Backup vault.',learn.vaultMatrix],
+    ['postgres','Azure Database for PostgreSQL Flexible Server','backupVault','PostgreSQL Flexible Server is protected through a Backup vault.',learn.vaultMatrix]
+  ],rows:[['rsv','Recovery Services vault (RSV)','Azure VMs, Azure Files, SQL/SAP HANA in Azure VMs, and supported on-premises workloads.'],['backupVault','Backup vault','Newer datasource types such as Azure Disks, Azure Blobs, and PostgreSQL Flexible Server.']],complete:'<strong>Lock it in:</strong> Azure Backup is the service; the datasource determines the vault. RSV covers classic workloads such as Azure VMs, Azure Files, SQL/SAP HANA in VMs, and on-premises workloads. Backup vault covers newer sources such as Azure Disks, Blobs, and PostgreSQL Flexible Server.',memory:'<table><thead><tr><th>Vault</th><th>Example datasources</th></tr></thead><tbody><tr><td>Recovery Services vault</td><td>Azure VMs, Azure Files, SQL Server and SAP HANA in Azure VMs, and supported on-premises workloads.</td></tr><tr><td>Backup vault</td><td>Azure Disks, Azure Blobs, Azure Database for PostgreSQL Flexible Server, and other newer workloads.</td></tr></tbody></table><p class="source-note">Support can vary by workload features and region. Check Microsoft’s current support matrix before deployment.</p>'}
+
 };
 const $=selector=>document.querySelector(selector),home=$('#home'),domainView=$('#domain'),gameView=$('#game');
 let active=null,selected=null,placed=new Map(),order=[],currentDomain=null;
