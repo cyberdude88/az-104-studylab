@@ -3,7 +3,7 @@
 A static, dependency-free study lab with interactive drills across all five AZ-104 domains:
 
 - Identity and governance: RBAC scope, policy, and locks
-- Storage: resiliency and Azure Files with on-premises AD DS
+- Storage: resiliency, replication-change matrices (exam-prep table and current Microsoft Learn table), and Azure Files with on-premises AD DS
 - Compute: VM availability and scale sets
 - Networking: NSG troubleshooting, default rule priorities, and VNet peering
 - Monitoring and maintenance: metric alerts, VM backup, RSV selection, Network Watcher / Traffic Analytics, and Arc-based Connection Monitor setup
