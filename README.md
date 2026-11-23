@@ -8,7 +8,7 @@ A static, dependency-free study lab with interactive drills across all five AZ-1
 - Networking: NSG troubleshooting, default rule priorities, and VNet peering
 - Monitoring and maintenance: metric alerts, VM backup, RSV selection, Backup vault vs RSV comparison table, Site Recovery Normal vs High Churn cache storage, Network Watcher / Traffic Analytics, and Arc-based Connection Monitor setup
 
-Drag an action into the answer table, or tap the action and then its destination. Correct placements turn green. The RSV workload challenge uses a larger inventory, XP, and streak scoring; it shows Microsoft Learn explanations only after a wrong placement.
+Drag an action into the answer table, or tap the action and then its destination. Correct placements turn green. The Backup vault placement challenge uses a larger inventory, XP, and streak scoring; it shows Microsoft Learn explanations only after a wrong placement.
 
 ## Live site
 
