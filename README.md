@@ -6,7 +6,7 @@ A static, dependency-free study lab with interactive drills across all five AZ-1
 - Storage: resiliency and Azure Files with on-premises AD DS
 - Compute: VM availability and scale sets
 - Networking: NSG troubleshooting and VNet peering
-- Monitoring and maintenance: metric alerts, VM backup, and vault workload selection
+- Monitoring and maintenance: metric alerts, VM backup, RSV selection, and Network Watcher / Traffic Analytics
 
 Drag an action into the answer table, or tap the action and then its destination. Correct placements turn green. The RSV workload challenge uses a larger inventory, XP, and streak scoring; it shows Microsoft Learn explanations only after a wrong placement.
 
