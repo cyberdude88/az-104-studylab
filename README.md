@@ -10,6 +10,10 @@ A static, dependency-free study lab with interactive drills across all five AZ-1
 
 Drag an action into the answer table, or tap the action and then its destination. Correct placements turn green. Incorrect placements leave the card in the selection pane and show an explanation with Microsoft Learn references.
 
+## Live site
+
+<https://cyberdude88.github.io/az104-storage-drop-drill/>
+
 ## Run locally
 
 ```sh
