@@ -1,4 +1,4 @@
-# AZ-104 Storage Drop Drill
+# AZ-104 StudyLab
 
 A static, dependency-free study lab with interactive drills across all five AZ-104 domains:
 
@@ -12,7 +12,7 @@ Drag an action into the answer table, or tap the action and then its destination
 
 ## Live site
 
-<https://cyberdude88.github.io/az104-storage-drop-drill/>
+<https://cyberdude88.github.io/az-104-studylab/>
 
 ## Run locally
 
