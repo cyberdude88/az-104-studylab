@@ -2,7 +2,7 @@
 
 A static, dependency-free study lab with interactive drills across all five AZ-104 domains:
 
-- Identity and governance: RBAC scope, policy, and locks
+- Identity and governance: RBAC scope, built-in role permissions table (allows vs does not allow), least-privilege role and scope table (root / to resource), policy, and locks
 - Storage: resiliency, replication-change matrices (exam-prep table and current Microsoft Learn table), and Azure Files with on-premises AD DS
 - Compute: VM availability and scale sets
 - Networking: NSG troubleshooting, default rule priorities, and VNet peering
