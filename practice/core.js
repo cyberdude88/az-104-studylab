@@ -29,8 +29,9 @@
   const domainPrior={identity:55,storage:36,compute:36,networking:36,monitor:50};
   /* rewording pools: every fictional org has a matching .example DNS name */
   const pools={
-    org:[['Kestrel Robotics','kestrelrobotics.example'],['Bluefen Studios','bluefen.example'],['Vantage Rail','vantagerail.example'],['Saltmarsh Labs','saltmarshlabs.example'],['Harborline Clinics','harborline.example'],['Quarry Outdoor','quarryoutdoor.example'],['Ledgerworks','ledgerworks.example'],['Orchard & Pike Law','orchardpike.example'],['Lumen Bakery Co','lumenbakery.example'],['Granite Peak School District','granitepeak.example'],['Northdune Freight','northdune.example'],['Copperleaf Insurance','copperleaf.example']],
-    person:['Ilse Varga','Tomas Reyes','Aiko Mori','Daniel Okafor','Lena Fischer','Marcus Bell','Sofia Ruiz','Ivan Petrov','Grace Liu','Noah Haddad'],
+    org:[['Brindlewick Robotics','brindlewick.example'],['Tallowmere Studios','tallowmere.example'],['Corvane Rail','corvanerail.example'],['Saltquill Labs','saltquill.example'],['Harrowfen Clinics','harrowfen.example'],['Mossgate Outdoor','mossgate.example'],['Ledgerwyn','ledgerwyn.example'],['Orrin & Pell Law','orrinpell.example'],['Crumbhollow Bakery','crumbhollow.example'],['Granvale School District','granvale.example'],['Duneward Freight','duneward.example'],['Thistlecap Insurance','thistlecap.example']],
+    /* invented first names only, so no scenario points at a real person */
+    person:['Tobin','Ilse','Marek','Yara','Oren','Linnea','Kiet','Ronan','Adaeze','Wren','Soren','Talia'],
     region:[['East US','West US'],['West Europe','North Europe'],['Canada Central','Canada East'],['Australia East','Australia Southeast'],['UK South','UK West'],['Japan East','Japan West']]
   };
   const items=[];

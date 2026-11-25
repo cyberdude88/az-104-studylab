@@ -67,12 +67,12 @@ const s=[];const S=o=>s.push(o);
 /* ═════════════ IDENTITY & GOVERNANCE ═════════════ */
 S({id:'guest-auditor',mode:'complete',lang:'pwsh',domains:['identity'],tags:['entra','rbac'],file:'invite-auditor.ps1',
 title:'Invite an external auditor, read-only, one resource group',
-scenario:'Ledgerworks (an outside audit firm) needs <b>read-only</b> access to <code>rg-finance-audit</code> at Orchard &amp; Pike Law for one quarter. They sign in with their own company accounts. Nothing else in the subscription should be visible to them.',
+scenario:'Ledgerwyn (an outside audit firm) needs <b>read-only</b> access to <code>rg-finance-audit</code> at Orrin &amp; Pell Law for one quarter. They sign in with their own company accounts. Nothing else in the subscription should be visible to them.',
 learn:[['Invite a guest with PowerShell',L+'entra/external-id/b2b-quickstart-invite-powershell'],['Assign Azure roles with PowerShell',L+'azure/role-based-access-control/role-assignments-powershell']],
 code:String.raw`Connect-MgGraph -Scopes "User.Invite.All","GroupMember.ReadWrite.All"
 
-$inv = {{1}} -InvitedUserEmailAddress "lead@ledgerworks.example" ~
-    -InvitedUserDisplayName "Ledgerworks Lead" ~
+$inv = {{1}} -InvitedUserEmailAddress "lead@ledgerwyn.example" ~
+    -InvitedUserDisplayName "Ledgerwyn Lead" ~
     -InviteRedirectUrl "https://myapps.microsoft.com" ~
     {{2}}
 
@@ -89,7 +89,7 @@ out:['Id                                   InviteRedeemUrl','----               
 
 S({id:'dynamic-group',mode:'complete',lang:'pwsh',domains:['identity'],tags:['entra'],file:'sales-dynamic-group.ps1',
 title:'Dynamic security group for the sales team',
-scenario:'Quarry Outdoor wants every <b>enabled</b> user whose department is <b>Sales</b> to land in one security group automatically, with membership updating as HR edits profiles. The tenant has Entra ID P1.',
+scenario:'Mossgate Outdoor wants every <b>enabled</b> user whose department is <b>Sales</b> to land in one security group automatically, with membership updating as HR edits profiles. The tenant has Entra ID P1.',
 learn:[['Dynamic membership rules',L+'entra/identity/users/groups-dynamic-membership'],['Create a dynamic group',L+'entra/identity/users/groups-create-rule']],
 code:String.raw`Connect-MgGraph -Scopes "Group.ReadWrite.All"
 
@@ -106,7 +106,7 @@ out:['DisplayName        Id                                   GroupTypes','-----
 
 S({id:'custom-role',mode:'complete',lang:'pwsh',domains:['identity','compute'],tags:['custom-role','rbac'],file:'vm-operator-role.ps1',
 title:'Custom role: start and restart VMs, nothing more',
-scenario:'Kestrel Robotics night operators may <b>view, start and restart</b> VMs in the production subscription. They must not resize, delete or deallocate anything. Build a custom role by cloning a built-in one.',
+scenario:'Brindlewick Robotics night operators may <b>view, start and restart</b> VMs in the production subscription. They must not resize, delete or deallocate anything. Build a custom role by cloning a built-in one.',
 learn:[['Create a custom role with PowerShell',L+'azure/role-based-access-control/custom-roles-powershell'],['Custom role properties',L+'azure/role-based-access-control/custom-roles']],
 code:String.raw`$role = Get-AzRoleDefinition -Name "Virtual Machine Contributor"
 $role.Id = $null
@@ -128,12 +128,12 @@ out:['Name             : VM Night Operator','IsCustom         : True','Actions  
 
 S({id:'mg-hierarchy',mode:'complete',lang:'azcli',domains:['identity'],tags:['mg','policy'],file:'mg-hierarchy.sh',
 title:'Nest management groups, move a subscription, assign policy once',
-scenario:'Quarry Outdoor: create <code>mg-quarry</code> under the tenant root, nest <code>mg-quarry-retail</code> under it, move <code>sub-retail-prod</code> into the retail group, then restrict <b>every retail subscription, now and future</b> to the two Canadian regions.',
+scenario:'Mossgate Outdoor: create <code>mg-mossgt</code> under the tenant root, nest <code>mg-mossgt-retail</code> under it, move <code>sub-retail-prod</code> into the retail group, then restrict <b>every retail subscription, now and future</b> to the two Canadian regions.',
 learn:[['Management groups overview',L+'azure/governance/management-groups/overview'],['Assign policy with Azure CLI',L+'azure/governance/policy/assign-policy-azurecli']],
-code:String.raw`az account management-group create --name mg-quarry --display-name "Quarry Outdoor"
+code:String.raw`az account management-group create --name mg-mossgt --display-name "Mossgate Outdoor"
 
-az account management-group create --name mg-quarry-retail \
-  --display-name "Retail" {{1}} mg-quarry
+az account management-group create --name mg-mossgt-retail \
+  --display-name "Retail" {{1}} mg-mossgt
 
 az account management-group subscription add \
   --name {{2}} --subscription "sub-retail-prod"
@@ -143,9 +143,9 @@ az policy assignment create --name allowed-regions \
   --scope {{3}} \
   --params '{ "listOfAllowedLocations": { "value": ["canadacentral","canadaeast"] } }'`,
 b:[{a:'--parent',o:['--parent-group','--management-group','--root'],t:'mg',why:'<code>--parent</code> (name or ID) nests the new group. Without it, the group lands directly under the tenant root.',w:{'--parent-group':'Not a parameter.','--management-group':'Not a parameter of create.','--root':'Not a parameter; root is the default parent.'}},
-{a:'mg-quarry-retail',o:['mg-quarry','"Tenant Root Group"'],t:'mg',why:'Moving a subscription = adding it to the new group. It can only have one parent, so it leaves its old one.',w:{'mg-quarry':'One level too high. Retail policy should apply to retail subscriptions only.','"Tenant Root Group"':'That’s where it probably already is.'}},
-{a:'"/providers/Microsoft.Management/managementGroups/mg-quarry-retail"',o:['"/subscriptions/sub-retail-prod"','"mg-quarry-retail"','"/managementGroups/mg-quarry-retail"'],t:'policy',why:'Assigning at the management group means every subscription placed in it later inherits the restriction.',w:{'"/subscriptions/sub-retail-prod"':'Covers one subscription, not future ones.','"mg-quarry-retail"':'Scope must be the full resource ID.','"/managementGroups/mg-quarry-retail"':'Missing the /providers/Microsoft.Management prefix.'}}],
-out:['{ "name": "mg-quarry-retail", "details": { "parent": { "name": "mg-quarry" } } }','Subscription sub-retail-prod → mg-quarry-retail','{ "name": "allowed-regions", "scope": "/providers/Microsoft.Management/managementGroups/mg-quarry-retail" }']});
+{a:'mg-mossgt-retail',o:['mg-mossgt','"Tenant Root Group"'],t:'mg',why:'Moving a subscription = adding it to the new group. It can only have one parent, so it leaves its old one.',w:{'mg-mossgt':'One level too high. Retail policy should apply to retail subscriptions only.','"Tenant Root Group"':'That’s where it probably already is.'}},
+{a:'"/providers/Microsoft.Management/managementGroups/mg-mossgt-retail"',o:['"/subscriptions/sub-retail-prod"','"mg-mossgt-retail"','"/managementGroups/mg-mossgt-retail"'],t:'policy',why:'Assigning at the management group means every subscription placed in it later inherits the restriction.',w:{'"/subscriptions/sub-retail-prod"':'Covers one subscription, not future ones.','"mg-mossgt-retail"':'Scope must be the full resource ID.','"/managementGroups/mg-mossgt-retail"':'Missing the /providers/Microsoft.Management prefix.'}}],
+out:['{ "name": "mg-mossgt-retail", "details": { "parent": { "name": "mg-mossgt" } } }','Subscription sub-retail-prod → mg-mossgt-retail','{ "name": "allowed-regions", "scope": "/providers/Microsoft.Management/managementGroups/mg-mossgt-retail" }']});
 
 S({id:'policy-exemption',mode:'fix',lang:'pwsh',domains:['identity'],tags:['policy-deny','policy'],file:'exempt-legacy.ps1',
 title:'Fix it: a 30-day policy exemption that never worked',
@@ -167,17 +167,17 @@ out:['Name               : legacy-migration-30d','ExemptionCategory  : Waiver','
 
 S({id:'lock-trap',mode:'fix',lang:'azcli',domains:['identity','storage'],tags:['lock'],file:'locks.sh',
 title:'Fix it: the lock that broke key rotation',
-scenario:'Bluefen Studios: production (<code>rg-bluefen-prod</code>) must stay <b>fully manageable</b> (scale, restart, rotate storage keys) but nothing may be <b>deleted</b>. The DNS resource group must be <b>frozen against any change</b> during a migration.',
-symptom:'Key rotation job: ScopeLocked – "The scope … cannot perform write operation because the following scope(s) are locked: rg-bluefen-prod".\nlistKeys is a POST, so a ReadOnly lock blocks it.',
+scenario:'Tallowmere Studios: production (<code>rg-tallow-prod</code>) must stay <b>fully manageable</b> (scale, restart, rotate storage keys) but nothing may be <b>deleted</b>. The DNS resource group must be <b>frozen against any change</b> during a migration.',
+symptom:'Key rotation job: ScopeLocked – "The scope … cannot perform write operation because the following scope(s) are locked: rg-tallow-prod".\nlistKeys is a POST, so a ReadOnly lock blocks it.',
 learn:[['Lock resources',L+'azure/azure-resource-manager/management/lock-resources']],
 code:String.raw`# Run as Owner or User Access Administrator (needs Microsoft.Authorization/locks/*)
 az lock create --name keep-prod \
-  --resource-group rg-bluefen-prod \
+  --resource-group rg-tallow-prod \
   --lock-type {{1}} \
   --notes "Stop accidental deletes"
 
 az lock create --name freeze-dns \
-  --resource-group rg-bluefen-dns \
+  --resource-group rg-tallow-dns \
   --lock-type {{2}} \
   --notes "Migration window"`,
 b:[{a:'CanNotDelete',bug:'ReadOnly',o:['DoNotDelete'],why:'<b>CanNotDelete</b>: read and modify are fine, delete is blocked. Key rotation keeps working.',w:{'ReadOnly':'ReadOnly blocks every write and POST, including listKeys and regenerating keys.','DoNotDelete':'Not an API value. The portal label is “Delete”; the value is CanNotDelete.'}},
@@ -186,71 +186,71 @@ out:['{ "level": "CanNotDelete", "name": "keep-prod" }','{ "level": "ReadOnly", 
 
 S({id:'tag-inherit',mode:'complete',lang:'azcli',domains:['identity'],tags:['tags','policy'],file:'inherit-costcenter.sh',
 title:'Inherit CostCenter from the resource group, then backfill',
-scenario:'Orchard &amp; Pike Law: every resource in <code>rg-orchard-legal</code> should carry the resource group’s <code>CostCenter</code> tag. New resources get it automatically, and the <b>200 existing</b> resources must be fixed too.',
+scenario:'Orrin &amp; Pell Law: every resource in <code>rg-orrin-legal</code> should carry the resource group’s <code>CostCenter</code> tag. New resources get it automatically, and the <b>200 existing</b> resources must be fixed too.',
 learn:[['Remediate non-compliant resources',L+'azure/governance/policy/how-to/remediate-resources'],['Modify effect',L+'azure/governance/policy/concepts/effect-modify']],
 code:String.raw`# Built-in: "Inherit a tag from the resource group if missing"   effect: {{1}}
 az policy assignment create --name inherit-costcenter \
   --policy "$INHERIT_TAG_IF_MISSING" \
-  --scope "/subscriptions/$SUB/resourceGroups/rg-orchard-legal" \
+  --scope "/subscriptions/$SUB/resourceGroups/rg-orrin-legal" \
   --params '{ "tagName": { "value": "CostCenter" } }' \
   {{2}} --location canadacentral
 
 az policy {{3}} create --name backfill-costcenter \
-  --resource-group rg-orchard-legal \
+  --resource-group rg-orrin-legal \
   --policy-assignment inherit-costcenter`,
 b:[{a:'Modify',o:['Append','DeployIfNotExists','Deny'],t:'policy',why:'Tag inheritance policies use <b>Modify</b>, which can add or replace tags on create or update, and can be remediated.',w:{'Append':'Append adds fields but can’t be remediated on existing resources the same way; the tag built-ins use Modify.','DeployIfNotExists':'Deploys a related resource (like an extension); it doesn’t edit tags.','Deny':'Would block resources without the tag instead of fixing them.'}},
-{a:'--mi-system-assigned',o:['--enforcement-mode DoNotEnforce','--not-scopes rg-orchard-legal'],t:'policy',why:'Modify and DeployIfNotExists assignments need a <b>managed identity</b>; it is the identity that edits resources during remediation.',w:{'--enforcement-mode DoNotEnforce':'Turns the effect off: audit-only.','--not-scopes rg-orchard-legal':'Excludes the very group you are targeting.'}},
+{a:'--mi-system-assigned',o:['--enforcement-mode DoNotEnforce','--not-scopes rg-orrin-legal'],t:'policy',why:'Modify and DeployIfNotExists assignments need a <b>managed identity</b>; it is the identity that edits resources during remediation.',w:{'--enforcement-mode DoNotEnforce':'Turns the effect off: audit-only.','--not-scopes rg-orrin-legal':'Excludes the very group you are targeting.'}},
 {a:'remediation',o:['state trigger-scan','exemption','assignment update'],t:'tags',why:'Modify only acts on new or updated resources. Existing resources need a <b>remediation task</b>.',w:{'state trigger-scan':'Re-evaluates compliance; it reports, doesn’t fix.','exemption':'Exempts resources instead of fixing them.','assignment update':'Changes the assignment, not the resources.'}}],
 out:['{ "name": "inherit-costcenter", "identity": { "type": "SystemAssigned" } }','Remediation backfill-costcenter: ProvisioningState=Accepted, 200 resources to remediate']});
 
 S({id:'move-vm',mode:'complete',lang:'pwsh',domains:['identity','compute'],tags:['move'],file:'move-scheduler.ps1',
 title:'Move a VM and its parts to a new resource group',
-scenario:'Vantage Rail is consolidating: the scheduler VM in <code>rg-vantage-old</code> moves to <code>rg-vantage-rail</code> in the same subscription. Keep its NIC and OS disk with it.',
+scenario:'Corvane Rail is consolidating: the scheduler VM in <code>rg-corvane-old</code> moves to <code>rg-corvane-rail</code> in the same subscription. Keep its NIC and OS disk with it.',
 learn:[['Move resources to a new resource group',L+'azure/azure-resource-manager/management/move-resource-group-and-subscription'],['Move VMs',L+'azure/azure-resource-manager/management/move-limitations/virtual-machines-move-limitations']],
-code:String.raw`$vm   = Get-AzResource -ResourceGroupName rg-vantage-old -Name vm-sched-01
-$nic  = Get-AzResource -ResourceGroupName rg-vantage-old -Name vm-sched-01-nic
-$disk = Get-AzResource -ResourceGroupName rg-vantage-old -Name vm-sched-01-osdisk
+code:String.raw`$vm   = Get-AzResource -ResourceGroupName rg-corvane-old -Name vm-sched-01
+$nic  = Get-AzResource -ResourceGroupName rg-corvane-old -Name vm-sched-01-nic
+$disk = Get-AzResource -ResourceGroupName rg-corvane-old -Name vm-sched-01-osdisk
 
-{{1}} -DestinationResourceGroupName "rg-vantage-rail" ~
+{{1}} -DestinationResourceGroupName "rg-corvane-rail" ~
     -ResourceId {{2}}
 
 # While the move runs: {{3}}`,
 b:[{a:'Move-AzResource',o:['Set-AzResource','Copy-AzResource','New-AzResourceGroupDeployment'],why:'<code>Move-AzResource</code> moves existing resources to another group or subscription.',w:{'Set-AzResource':'Updates properties; it can’t change the resource group.','Copy-AzResource':'Not a real cmdlet.','New-AzResourceGroupDeployment':'Deploys a template; it doesn’t move existing resources.'}},
 {a:'$vm.ResourceId, $nic.ResourceId, $disk.ResourceId',o:['$vm.ResourceId','$vm.Name, $nic.Name, $disk.Name'],why:'Dependent resources move together in one request.',w:{'$vm.ResourceId':'Leaves the NIC and disk behind; the move validation fails on dependencies.','$vm.Name, $nic.Name, $disk.Name':'-ResourceId needs IDs, not names.'}},
 {a:'both groups are locked for writes; resource IDs change; location stays the same',o:['the VM is redeployed to the target group’s region','the VM is deallocated and its public IP changes','only the target group is locked'],why:'Source and target groups are locked (no create, update or delete) during the move. The resources keep their region; their IDs change.',w:{'the VM is redeployed to the target group’s region':'A move never changes the resource’s location.','the VM is deallocated and its public IP changes':'The VM keeps running. Some resources (like Basic public IPs) have their own move limits, but nothing is deallocated.','only the target group is locked':'Both groups are locked.'}}],
-out:['Moving 3 resources to rg-vantage-rail …','Microsoft.Compute/virtualMachines/vm-sched-01   → rg-vantage-rail','Microsoft.Network/networkInterfaces/vm-sched-01-nic → rg-vantage-rail','Microsoft.Compute/disks/vm-sched-01-osdisk       → rg-vantage-rail']});
+out:['Moving 3 resources to rg-corvane-rail …','Microsoft.Compute/virtualMachines/vm-sched-01   → rg-corvane-rail','Microsoft.Network/networkInterfaces/vm-sched-01-nic → rg-corvane-rail','Microsoft.Compute/disks/vm-sched-01-osdisk       → rg-corvane-rail']});
 
 S({id:'rbac-assign-fix',mode:'fix',lang:'azcli',domains:['identity'],tags:['rbac'],file:'onboard-newhire.sh',
 title:'Fix it: the team lead can’t grant access',
-scenario:'Dana leads the Vantage Rail ops team. She should be able to give new hires <b>Virtual Machine Contributor</b> on <code>rg-vantage-ops</code> herself, with the least privilege possible, and nothing outside that group.',
-symptom:'(AuthorizationFailed) The client "dana@vantagerail.example" does not have authorization to perform action "Microsoft.Authorization/roleAssignments/write" over scope "/subscriptions/…".',
+scenario:'Dana leads the Corvane Rail ops team. She should be able to give new hires <b>Virtual Machine Contributor</b> on <code>rg-corvane-ops</code> herself, with the least privilege possible, and nothing outside that group.',
+symptom:'(AuthorizationFailed) The client "dana@corvanerail.example" does not have authorization to perform action "Microsoft.Authorization/roleAssignments/write" over scope "/subscriptions/…".',
 learn:[['Assign roles with Azure CLI',L+'azure/role-based-access-control/role-assignments-cli'],['Role Based Access Control Administrator',L+'azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator']],
-code:String.raw`# Dana's own role on rg-vantage-ops: {{1}}
+code:String.raw`# Dana's own role on rg-corvane-ops: {{1}}
 az role assignment create \
-  --assignee "newhire@vantagerail.example" \
+  --assignee "newhire@corvanerail.example" \
   --role {{2}} \
   --scope {{3}}`,
 b:[{a:'Role Based Access Control Administrator',bug:'Contributor',o:['Reader','Virtual Machine Contributor'],why:'Assigning roles needs <code>Microsoft.Authorization/roleAssignments/write</code>. <b>Contributor excludes it.</b> RBAC Administrator (or Owner, or User Access Administrator) has it; RBAC Administrator is the least privilege and can be constrained to specific roles.',w:{'Contributor':'Contributor manages resources but has NotActions on Microsoft.Authorization/*/Write. It can’t assign roles.','Reader':'Read-only. It can’t assign roles.','Virtual Machine Contributor':'Manages VMs only. It can’t assign roles.'}},
 {a:'"Virtual Machine Contributor"',o:['"Contributor"','"Owner"'],why:'That is exactly what the new hire needs. (This line was already right.)',w:{'"Contributor"':'Broader than needed.','"Owner"':'Would let the new hire assign roles too.'}},
-{a:'"/subscriptions/$SUB/resourceGroups/rg-vantage-ops"',bug:'"/subscriptions/$SUB"',o:['"rg-vantage-ops"'],why:'Dana’s rights only exist on rg-vantage-ops, and the brief says nothing outside it.',w:{'"/subscriptions/$SUB"':'Dana has no rights at subscription scope, and it breaks least privilege.','"rg-vantage-ops"':'Scope needs the full ID.'}}],
-out:['{ "principalName": "newhire@vantagerail.example",','  "roleDefinitionName": "Virtual Machine Contributor",','  "scope": "/subscriptions/…/resourceGroups/rg-vantage-ops" }']});
+{a:'"/subscriptions/$SUB/resourceGroups/rg-corvane-ops"',bug:'"/subscriptions/$SUB"',o:['"rg-corvane-ops"'],why:'Dana’s rights only exist on rg-corvane-ops, and the brief says nothing outside it.',w:{'"/subscriptions/$SUB"':'Dana has no rights at subscription scope, and it breaks least privilege.','"rg-corvane-ops"':'Scope needs the full ID.'}}],
+out:['{ "principalName": "newhire@corvanerail.example",','  "roleDefinitionName": "Virtual Machine Contributor",','  "scope": "/subscriptions/…/resourceGroups/rg-corvane-ops" }']});
 
 /* ═════════════ STORAGE ═════════════ */
 S({id:'adls-acl',mode:'complete',lang:'azcli',domains:['storage','identity'],tags:['hns-acl'],file:'lake-acls.sh',
 title:'Data Lake: let analysts read one folder and nothing else',
-scenario:'Saltmarsh Labs builds a data lake. The <code>$ANALYSTS</code> group must <b>read files in raw/2026/</b> (including files added later) and must not list or read anything else in the file system.',
+scenario:'Saltquill Labs builds a data lake. The <code>$ANALYSTS</code> group must <b>read files in raw/2026/</b> (including files added later) and must not list or read anything else in the file system.',
 learn:[['Access control lists in Data Lake Storage',L+'azure/storage/blobs/data-lake-storage-access-control'],['Manage ACLs with Azure CLI',L+'azure/storage/blobs/data-lake-storage-acl-cli']],
-code:String.raw`az storage account create --name stsaltmarshlake --resource-group rg-saltmarsh-data \
+code:String.raw`az storage account create --name stsaltquilllake --resource-group rg-saltquill-data \
   --sku Standard_ZRS --kind StorageV2 {{1}}
 
-az storage fs create --name raw --account-name stsaltmarshlake --auth-mode login
+az storage fs create --name raw --account-name stsaltquilllake --auth-mode login
 
 # Root of the file system: analysts may only pass through
-az storage fs access set -p / -f raw --account-name stsaltmarshlake --auth-mode login \
+az storage fs access set -p / -f raw --account-name stsaltquilllake --auth-mode login \
   --acl "user::rwx,group::r-x,other::---,group:$ANALYSTS:{{2}}"
 
 # raw/2026 and everything under it, now and later
-az storage fs access update-recursive -p 2026 -f raw --account-name stsaltmarshlake --auth-mode login \
+az storage fs access update-recursive -p 2026 -f raw --account-name stsaltquilllake --auth-mode login \
   --acl {{3}}`,
 b:[{a:'--hns true',o:['--enable-sftp true','--access-tier Cool','--kind BlobStorage'],why:'ACLs exist only with the <b>hierarchical namespace</b> (Data Lake Storage) enabled.',w:{'--enable-sftp true':'SFTP needs HNS but doesn’t turn it on.','--access-tier Cool':'Tier has nothing to do with ACLs.','--kind BlobStorage':'Legacy kind; use StorageV2 with HNS.'}},
 {a:'--x',o:['r-x','rwx','---'],why:'<b>Execute (x) on every parent folder</b> lets them traverse to raw/2026 without listing the root.',w:{'r-x':'r on a directory lets them list the root: more than “nothing else”.','rwx':'Write at the root. Far too much.','---':'Without x they can’t traverse to 2026 at all.'}},
@@ -259,7 +259,7 @@ out:['{ "hierarchicalNamespace": true, "kind": "StorageV2" }','{ "acl": "user::r
 
 S({id:'sas-policy',mode:'complete',lang:'pwsh',domains:['storage'],tags:['sas'],file:'vendor-sas.ps1',
 title:'Revocable SAS for a vendor through a stored access policy',
-scenario:'Harborline Clinics gives a scanning vendor <b>read and list</b> access to the <code>intake</code> container for 14 days. If the contract ends early, Harborline must be able to <b>revoke access without rotating account keys</b>.',
+scenario:'Harrowfen Clinics gives a scanning vendor <b>read and list</b> access to the <code>intake</code> container for 14 days. If the contract ends early, Harrowfen must be able to <b>revoke access without rotating account keys</b>.',
 learn:[['Stored access policies',L+'rest/api/storageservices/define-stored-access-policy'],['SAS overview',L+'azure/storage/common/storage-sas-overview']],
 code:String.raw`$ctx = (Get-AzStorageAccount -ResourceGroupName rg-harbor -Name stharborscans).Context
 
@@ -278,10 +278,10 @@ out:['Policy      Permissions  ExpiryTime','vendor-read rl           2026-12-09 
 
 S({id:'ud-sas',mode:'complete',lang:'azcli',domains:['storage','identity'],tags:['sas','mi'],file:'firmware-link.sh',
 title:'User delegation SAS: a download link signed by Entra ID',
-scenario:'Kestrel Robotics security bans account-key signing. A build engineer (signed in with Entra ID, holding a blob data role) needs a <b>read-only link</b> to one firmware file for a field tech.',
+scenario:'Brindlewick Robotics security bans account-key signing. A build engineer (signed in with Entra ID, holding a blob data role) needs a <b>read-only link</b> to one firmware file for a field tech.',
 learn:[['Create a user delegation SAS with Azure CLI',L+'azure/storage/blobs/storage-blob-user-delegation-sas-create-cli']],
 code:String.raw`az storage blob generate-sas \
-  --account-name stkestrelbuild --container-name artifacts --name firmware-4.2.bin \
+  --account-name stbrindlebuild --container-name artifacts --name firmware-4.2.bin \
   --permissions r --expiry 2026-12-01T00:00Z \
   {{1}} {{2}} --full-uri
 
@@ -289,11 +289,11 @@ code:String.raw`az storage blob generate-sas \
 b:[{a:'--as-user',o:['--policy-name vendor-read','--account-key "$KEY"'],why:'<code>--as-user</code> signs the SAS with a user delegation key from Entra ID instead of the account key.',w:{'--policy-name vendor-read':'Stored access policies work only with service SAS, not user delegation SAS.','--account-key "$KEY"':'Account-key signing is exactly what security banned.'}},
 {a:'--auth-mode login',o:['--auth-mode key','--connection-string "$CONN"'],why:'Use your Entra sign-in to fetch the delegation key.',w:{'--auth-mode key':'Uses the account key.','--connection-string "$CONN"':'Connection strings carry the account key.'}},
 {a:'7 days',o:['1 year','30 days','no limit'],why:'A user delegation SAS (and its key) is valid for at most <b>7 days</b>.',w:{'1 year':'User delegation SAS max is 7 days.','30 days':'User delegation SAS max is 7 days.','no limit':'User delegation SAS max is 7 days.'}}],
-out:['"https://stkestrelbuild.blob.core.windows.net/artifacts/firmware-4.2.bin?skoid=…&sktid=…&sp=r&sig=…"']});
+out:['"https://stbrindlebuild.blob.core.windows.net/artifacts/firmware-4.2.bin?skoid=…&sktid=…&sp=r&sig=…"']});
 
 S({id:'lifecycle',mode:'complete',lang:'azcli',domains:['storage'],tags:['lifecycle','blob-tier'],file:'scans-lifecycle.sh',
 title:'Lifecycle rule: Cool at 30, Archive at 180, delete at 7 years',
-scenario:'Harborline Clinics keeps scans under <code>scans/</code>: move to <b>Cool</b> after 30 days, <b>Archive</b> after 180, delete after 7 years (2,555 days). Old <b>versions</b> must be deleted 90 days after they were created.',
+scenario:'Harrowfen Clinics keeps scans under <code>scans/</code>: move to <b>Cool</b> after 30 days, <b>Archive</b> after 180, delete after 7 years (2,555 days). Old <b>versions</b> must be deleted 90 days after they were created.',
 learn:[['Lifecycle management overview',L+'azure/storage/blobs/lifecycle-management-overview'],['Configure a lifecycle policy',L+'azure/storage/blobs/lifecycle-management-policy-configure']],
 code:String.raw`cat > policy.json <<'EOF'
 { "rules": [ {
@@ -319,17 +319,17 @@ out:['{ "policy": { "rules": [ { "name": "scans-age-out", "enabled": true } ] } 
 
 S({id:'obj-replication',mode:'fix',lang:'azcli',domains:['storage'],tags:['obj-rep','blob-version'],file:'replicate-catalog.sh',
 title:'Fix it: object replication refuses to start',
-scenario:'Quarry Outdoor replicates the <code>catalog</code> container from <code>stquarrysrc</code> to <code>stquarrydr</code>, copying blobs created since 1 November.',
+scenario:'Mossgate Outdoor replicates the <code>catalog</code> container from <code>stmossgtsrc</code> to <code>stmossgtdr</code>, copying blobs created since 1 November.',
 symptom:'(InvalidRequest) Object replication requires blob versioning on both accounts and change feed on the source account.',
 learn:[['Object replication overview',L+'azure/storage/blobs/object-replication-overview'],['Configure object replication',L+'azure/storage/blobs/object-replication-configure']],
-code:String.raw`az storage account blob-service-properties update --account-name stquarrysrc \
-  --resource-group rg-quarry --enable-versioning true {{1}}
+code:String.raw`az storage account blob-service-properties update --account-name stmossgtsrc \
+  --resource-group rg-mossgt --enable-versioning true {{1}}
 
-az storage account blob-service-properties update --account-name stquarrydr \
-  --resource-group rg-quarry {{2}}
+az storage account blob-service-properties update --account-name stmossgtdr \
+  --resource-group rg-mossgt {{2}}
 
-az storage account or-policy create --account-name stquarrydr --resource-group rg-quarry \
-  --source-account stquarrysrc --destination-account stquarrydr \
+az storage account or-policy create --account-name stmossgtdr --resource-group rg-mossgt \
+  --source-account stmossgtsrc --destination-account stmossgtdr \
   --source-container catalog --destination-container catalog \
   {{3}}`,
 b:[{a:'--enable-change-feed true',bug:'--enable-change-feed false',o:['--enable-last-access-tracking true'],why:'The <b>source</b> needs change feed so replication knows what changed.',w:{'--enable-change-feed false':'Change feed must be ON at the source.','--enable-last-access-tracking true':'For lifecycle rules, not replication.'}},
@@ -339,17 +339,17 @@ out:['{ "isVersioningEnabled": true, "changeFeed": { "enabled": true } }','{ "is
 
 S({id:'soft-delete',mode:'complete',lang:'azcli',domains:['storage'],tags:['soft-delete'],file:'recovery-net.sh',
 title:'Soft delete everything, then undelete a file',
-scenario:'Lumen Bakery Co wants <b>14 days</b> to recover deleted blobs, deleted containers and deleted file shares. On Monday someone deleted <code>menu-2026.docx</code> from the <code>menus</code> blob container.',
+scenario:'Crumbhollow Bakery wants <b>14 days</b> to recover deleted blobs, deleted containers and deleted file shares. On Monday someone deleted <code>menu-2026.docx</code> from the <code>menus</code> blob container.',
 learn:[['Blob soft delete',L+'azure/storage/blobs/soft-delete-blob-overview'],['Container soft delete',L+'azure/storage/blobs/soft-delete-container-overview']],
-code:String.raw`az storage account blob-service-properties update -n stlumenrecipes -g rg-lumen \
+code:String.raw`az storage account blob-service-properties update -n stcrumbrecipes -g rg-crumb \
   --enable-delete-retention true --delete-retention-days {{1}} \
   {{2}} --container-delete-retention-days 14
 
-az storage account file-service-properties update -n stlumenrecipes -g rg-lumen \
+az storage account file-service-properties update -n stcrumbrecipes -g rg-crumb \
   --enable-delete-retention true --delete-retention-days 14
 
 # Monday morning:
-az storage blob {{3}} --account-name stlumenrecipes --container-name menus \
+az storage blob {{3}} --account-name stcrumbrecipes --container-name menus \
   --name menu-2026.docx --auth-mode login`,
 b:[{a:'14',o:['0','400','366'],why:'Retention is 1–365 days; the brief says 14.',w:{'0':'Minimum is 1 day.','400':'Maximum is 365 days.','366':'Maximum is 365 days.'}},
 {a:'--enable-container-delete-retention true',o:['--enable-versioning true','--enable-restore-policy true'],why:'Container soft delete is a separate switch from blob soft delete.',w:{'--enable-versioning true':'Versioning protects overwrites; it doesn’t bring back a deleted container.','--enable-restore-policy true':'Point-in-time restore for block blobs; it doesn’t cover deleted containers.'}},
@@ -358,7 +358,7 @@ out:['{ "deleteRetentionPolicy": { "days": 14, "enabled": true }, "containerDele
 
 S({id:'files-rbac',mode:'complete',lang:'azcli',domains:['storage','identity'],tags:['files','rbac'],file:'staff-share.sh',
 title:'Azure Files share with identity-based access for teachers',
-scenario:'Granite Peak School District maps a <code>staff</code> share on domain-joined Windows laptops. Teachers need to <b>read, write and delete</b> files; they must not change NTFS permissions. Identity-based auth is already enabled on the account.',
+scenario:'Granvale School District maps a <code>staff</code> share on domain-joined Windows laptops. Teachers need to <b>read, write and delete</b> files; they must not change NTFS permissions. Identity-based auth is already enabled on the account.',
 learn:[['Assign share-level permissions',L+'azure/storage/files/storage-files-identity-assign-share-level-permissions'],['Azure Files networking (SMB 445)',L+'azure/storage/files/storage-files-networking-overview']],
 code:String.raw`az storage share-rm create --storage-account stgranitefiles -g rg-granite \
   --name staff --quota 1024 --enabled-protocols {{1}}
@@ -376,16 +376,16 @@ out:['{ "name": "staff", "enabledProtocols": "SMB", "shareQuota": 1024 }','{ "ro
 
 S({id:'azcopy-archive',mode:'fix',lang:'azcli',domains:['storage'],tags:['azcopy'],file:'archive-footage.sh',
 title:'Fix it: the footage migration copied nothing',
-scenario:'Bluefen Studios copies the whole <code>raw-footage</code> container into the archive account, landing in the <b>Cool</b> tier. Then they keep local project folders mirrored to the cloud, but cloud copies must <b>never be deleted</b> by the sync.',
+scenario:'Tallowmere Studios copies the whole <code>raw-footage</code> container into the archive account, landing in the <b>Cool</b> tier. Then they keep local project folders mirrored to the cloud, but cloud copies must <b>never be deleted</b> by the sync.',
 symptom:'Job summary: Number of Transfers Completed: 0 … "cannot use directory as source without --recursive or a trailing wildcard (/*)".\nAlso: last night 112 cloud files disappeared after editors cleaned up local folders.',
 learn:[['AzCopy copy',L+'azure/storage/common/storage-ref-azcopy-copy'],['AzCopy sync',L+'azure/storage/common/storage-ref-azcopy-sync']],
 code:String.raw`azcopy login --tenant-id "$TENANT"
 
-azcopy copy "https://stbluefenold.blob.core.windows.net/raw-footage" \
-  "https://stbluefenarchive.blob.core.windows.net/footage" {{1}} {{2}}
+azcopy copy "https://sttallowold.blob.core.windows.net/raw-footage" \
+  "https://sttallowarchive.blob.core.windows.net/footage" {{1}} {{2}}
 
 azcopy sync "/mnt/edit-bay/projects" \
-  "https://stbluefenarchive.blob.core.windows.net/projects" {{3}}`,
+  "https://sttallowarchive.blob.core.windows.net/projects" {{3}}`,
 b:[{a:'--recursive',bug:'--recursive=false',o:['--include-pattern "*"'],why:'Copying a container or folder requires <code>--recursive</code>.',w:{'--recursive=false':'Containers and folders need --recursive.','--include-pattern "*"':'Filters names; still not recursive.'}},
 {a:'--block-blob-tier=Cool',o:['--block-blob-tier=Archive','--blob-type=PageBlob'],why:'Lands blobs directly in Cool. (This line was already right.)',w:{'--block-blob-tier=Archive':'Archive is offline; editors need to read these.','--blob-type=PageBlob':'Page blobs are for VHDs; they can’t be tiered.'}},
 {a:'--delete-destination=false',bug:'--delete-destination=true',o:['--delete-destination=prompt'],why:'With <code>true</code>, sync deletes destination files missing from the source. That is what wiped the 112 files.',w:{'--delete-destination=true':'Deletes cloud files that no longer exist locally.','--delete-destination=prompt':'Asks interactively; a nightly job would hang or still delete.'}}],
@@ -393,31 +393,31 @@ out:['Job 6e1d… summary','Number of Transfers Completed: 18,204','Final Job St
 
 S({id:'redundancy',mode:'complete',lang:'azcli',domains:['storage'],tags:['redundancy'],file:'tickets-dr.sh',
 title:'Read from the secondary, then fail over',
-scenario:'Vantage Rail’s ticket archive is <b>GRS</b>. During a regional incident the app must be able to <b>read from the secondary</b> right away. If the primary stays down, ops will <b>promote the secondary</b>.',
+scenario:'Corvane Rail’s ticket archive is <b>GRS</b>. During a regional incident the app must be able to <b>read from the secondary</b> right away. If the primary stays down, ops will <b>promote the secondary</b>.',
 learn:[['Storage redundancy',L+'azure/storage/common/storage-redundancy'],['Initiate an account failover',L+'azure/storage/common/storage-initiate-account-failover']],
-code:String.raw`az storage account update -n stvantagetickets -g rg-vantage --sku {{1}}
+code:String.raw`az storage account update -n stcorvanetickets -g rg-corvane --sku {{1}}
 
-az storage account show -n stvantagetickets --query {{2}}
+az storage account show -n stcorvanetickets --query {{2}}
 
 # Primary region still down after the incident review:
-az storage account {{3}} -n stvantagetickets -g rg-vantage`,
+az storage account {{3}} -n stcorvanetickets -g rg-corvane`,
 b:[{a:'Standard_RAGRS',o:['Standard_GRS','Standard_ZRS','Premium_LRS'],why:'<b>RA-</b>GRS adds a read-only secondary endpoint (<code>-secondary</code>).',w:{'Standard_GRS':'Replicates to the secondary but you can’t read it until a failover.','Standard_ZRS':'No secondary region at all.','Premium_LRS':'One datacenter, no secondary.'}},
 {a:'secondaryEndpoints.blob',o:['primaryEndpoints.blob','statusOfPrimary'],why:'Point the app’s read path at the secondary blob endpoint.',w:{'primaryEndpoints.blob':'That is the region that is down.','statusOfPrimary':'Tells you it’s unavailable, not where to read.'}},
 {a:'failover',o:['swap','promote','update --failover'],why:'<code>az storage account failover</code> makes the secondary the new primary. Afterwards the account is LRS until you re-enable geo-redundancy.',w:{'swap':'Not a storage command.','promote':'Not a storage command.','update --failover':'Not a parameter.'}}],
-out:['{ "sku": { "name": "Standard_RAGRS" } }','"https://stvantagetickets-secondary.blob.core.windows.net/"','Failover initiated … this can take an hour. Account will be LRS in the new primary.']});
+out:['{ "sku": { "name": "Standard_RAGRS" } }','"https://stcorvanetickets-secondary.blob.core.windows.net/"','Failover initiated … this can take an hour. Account will be LRS in the new primary.']});
 
 /* ═════════════ COMPUTE ═════════════ */
 S({id:'snapshot-restore',mode:'complete',lang:'azcli',domains:['compute'],tags:['snapshot'],file:'pre-patch-snapshot.sh',
 title:'Snapshot before patching, rebuild from it after',
-scenario:'Orchard &amp; Pike Law snapshots the Ubuntu VM <code>vm-docs-01</code> before patch night. The patch breaks boot. Build <b>a new VM</b> from the snapshot.',
+scenario:'Orrin &amp; Pell Law snapshots the Ubuntu VM <code>vm-docs-01</code> before patch night. The patch breaks boot. Build <b>a new VM</b> from the snapshot.',
 learn:[['Snapshot a managed disk',L+'azure/virtual-machines/snapshot-copy-managed-disk'],['Create a VM from a managed disk',L+'azure/virtual-machines/linux/upload-vhd']],
-code:String.raw`OSDISK=$(az vm show -g rg-orchard -n vm-docs-01 --query {{1}} -o tsv)
-az snapshot create -g rg-orchard -n snap-docs-prepatch --source "$OSDISK"
+code:String.raw`OSDISK=$(az vm show -g rg-orrin -n vm-docs-01 --query {{1}} -o tsv)
+az snapshot create -g rg-orrin -n snap-docs-prepatch --source "$OSDISK"
 
 # Patch broke boot. A snapshot can't run; turn it into a disk:
-az disk create -g rg-orchard -n disk-docs-restored {{2}} snap-docs-prepatch
+az disk create -g rg-orrin -n disk-docs-restored {{2}} snap-docs-prepatch
 
-az vm create -g rg-orchard -n vm-docs-02 \
+az vm create -g rg-orrin -n vm-docs-02 \
   {{3}} disk-docs-restored --os-type {{4}}`,
 b:[{a:'storageProfile.osDisk.managedDisk.id',o:['storageProfile.osDisk.name','storageProfile.dataDisks[0].managedDisk.id','hardwareProfile.vmSize'],why:'--source takes the disk’s resource ID (a name works only if it’s in the same group).',w:{'storageProfile.osDisk.name':'A bare name; fragile, and not the ID.','storageProfile.dataDisks[0].managedDisk.id':'The first data disk, not the OS disk.','hardwareProfile.vmSize':'The VM size, not a disk.'}},
 {a:'--source',o:['--snapshot','--from-snapshot','--copy'],why:'<code>az disk create --source</code> accepts a snapshot (or disk) name or ID.',w:{'--snapshot':'Not a parameter.','--from-snapshot':'Not a parameter.','--copy':'Not a parameter.'}},
@@ -427,14 +427,14 @@ out:['Snapshot snap-docs-prepatch: Succeeded (full, 30 GiB)','Disk disk-docs-res
 
 S({id:'disk-sku',mode:'fix',lang:'azcli',domains:['compute'],tags:['disk-sku'],file:'upgrade-disk.sh',
 title:'Fix it: Standard HDD to Premium SSD',
-scenario:'Kestrel Robotics’ render VM <code>vm-render-03</code> (size D4s_v5, which supports Premium storage) is I/O-bound. Convert its OS disk to <b>Premium SSD LRS</b>.',
+scenario:'Brindlewick Robotics’ render VM <code>vm-render-03</code> (size D4s_v5, which supports Premium storage) is I/O-bound. Convert its OS disk to <b>Premium SSD LRS</b>.',
 symptom:'(OperationNotAllowed) Disk vm-render-03-os: changing the SKU requires the VM to be deallocated. Current power state: stopped (allocated).',
 learn:[['Convert managed disk types',L+'azure/virtual-machines/disks-convert-types']],
-code:String.raw`az vm {{1}} -g rg-kestrel -n vm-render-03
+code:String.raw`az vm {{1}} -g rg-brindle -n vm-render-03
 
-az disk update -g rg-kestrel -n vm-render-03-os --sku {{2}}
+az disk update -g rg-brindle -n vm-render-03-os --sku {{2}}
 
-az vm {{3}} -g rg-kestrel -n vm-render-03`,
+az vm {{3}} -g rg-brindle -n vm-render-03`,
 b:[{a:'deallocate',bug:'stop',o:['restart'],why:'Disk type changes need the VM <b>deallocated</b> (off the host). <code>stop</code> powers off but keeps the compute allocated.',w:{'stop':'Stopped (allocated): the disk stays bound to the host, so the SKU can’t change.','restart':'Never takes the VM off the host.'}},
 {a:'Premium_LRS',o:['StandardSSD_LRS','UltraSSD_LRS'],why:'Premium SSD, locally redundant. (This line was already right.)',w:{'StandardSSD_LRS':'Standard SSD, not Premium.','UltraSSD_LRS':'Ultra disks can’t be OS disks.'}},
 {a:'start',o:['redeploy','reapply'],why:'Start it again. (This line was already right.)',w:{'redeploy':'Moves the VM to a new host; not needed.','reapply':'Re-applies VM state; not needed.'}}],
@@ -442,7 +442,7 @@ out:['VM vm-render-03 deallocated','{ "sku": { "name": "Premium_LRS", "tier": "P
 
 S({id:'avset',mode:'complete',lang:'pwsh',domains:['compute'],tags:['avset'],file:'sis-avset.ps1',
 title:'Availability set for six web VMs',
-scenario:'Granite Peak’s student information system runs six identical web VMs on managed disks in Canada Central, which offers <b>3 fault domains</b>. Use the maximum fault domains and the <b>default</b> update domain count.',
+scenario:'Granvale’s student information system runs six identical web VMs on managed disks in Canada Central, which offers <b>3 fault domains</b>. Use the maximum fault domains and the <b>default</b> update domain count.',
 learn:[['Availability sets overview',L+'azure/virtual-machines/availability-set-overview'],['Create a VM in an availability set',L+'azure/virtual-machines/windows/tutorial-availability-sets']],
 code:String.raw`$avs = New-AzAvailabilitySet -ResourceGroupName rg-granite-sis -Name avs-sis-web ~
     -Location canadacentral ~
@@ -461,7 +461,7 @@ out:['Name: avs-sis-web   PlatformFaultDomainCount: 3   PlatformUpdateDomainCoun
 
 S({id:'vmss-flex',mode:'complete',lang:'azcli',domains:['compute','networking'],tags:['vmss-flex','lb'],file:'portal-scaleset.sh',
 title:'Flexible scale set that heals itself',
-scenario:'Harborline’s patient portal runs on a scale set across three zones. It must <b>mix regular and Spot VM sizes</b>, and an instance that fails its health probe should be <b>replaced automatically</b> after 30 minutes.',
+scenario:'Harrowfen’s patient portal runs on a scale set across three zones. It must <b>mix regular and Spot VM sizes</b>, and an instance that fails its health probe should be <b>replaced automatically</b> after 30 minutes.',
 learn:[['Orchestration modes',L+'azure/virtual-machine-scale-sets/virtual-machine-scale-sets-orchestration-modes'],['Automatic instance repairs',L+'azure/virtual-machine-scale-sets/virtual-machine-scale-sets-automatic-instance-repairs']],
 code:String.raw`az vmss create -g rg-harbor-portal -n vmss-portal \
   --image Ubuntu2204 --orchestration-mode {{1}} \
@@ -478,14 +478,14 @@ out:['{ "orchestrationMode": "Flexible", "zones": ["1","2","3"] }','{ "automatic
 
 S({id:'vmss-cse',mode:'fix',lang:'azcli',domains:['compute'],tags:['cse','vmss-upgrade'],file:'install-nginx.sh',
 title:'Fix it: old instances never got nginx',
-scenario:'Lumen Bakery’s Linux scale set <code>vmss-orders</code> (Uniform, upgrade policy <b>Manual</b>) gets a Custom Script Extension that installs nginx.',
+scenario:'Crumbhollow Bakery’s Linux scale set <code>vmss-orders</code> (Uniform, upgrade policy <b>Manual</b>) gets a Custom Script Extension that installs nginx.',
 symptom:'New instances serve the site. The 3 existing instances still return 502: "latestModelApplied": false.',
 learn:[['Install apps on a scale set with CLI',L+'azure/virtual-machine-scale-sets/tutorial-install-apps-cli'],['Upgrade policies',L+'azure/virtual-machine-scale-sets/virtual-machine-scale-sets-upgrade-policy']],
-code:String.raw`az vmss extension set -g rg-lumen-web --vmss-name vmss-orders \
+code:String.raw`az vmss extension set -g rg-crumb-web --vmss-name vmss-orders \
   --publisher {{1}} --name {{2}} \
-  --settings '{"fileUris":["https://stlumenscripts.blob.core.windows.net/boot/install-nginx.sh"],"commandToExecute":"bash install-nginx.sh"}'
+  --settings '{"fileUris":["https://stcrumbscripts.blob.core.windows.net/boot/install-nginx.sh"],"commandToExecute":"bash install-nginx.sh"}'
 
-az vmss {{3}} -g rg-lumen-web -n vmss-orders --instance-ids '*'`,
+az vmss {{3}} -g rg-crumb-web -n vmss-orders --instance-ids '*'`,
 b:[{a:'Microsoft.Azure.Extensions',o:['Microsoft.Compute'],why:'Linux Custom Script publisher. (This line was already right.)',w:{'Microsoft.Compute':'That is the Windows Custom Script publisher.'}},
 {a:'CustomScript',o:['CustomScriptExtension'],why:'Linux extension name. (This line was already right.)',w:{'CustomScriptExtension':'Windows extension name.'}},
 {a:'update-instances',bug:'restart',o:['reimage','start'],why:'With <b>Manual</b> upgrade policy, the model changes but existing instances keep the old model until you run <code>update-instances</code>.',w:{'restart':'A restart doesn’t apply the new model.','reimage':'Would apply it but wipes the OS disk; heavy-handed.','start':'They’re already running.'}}],
@@ -493,16 +493,16 @@ out:['Updating 3 instances to latest model …','{ "latestModelApplied": true } 
 
 S({id:'autoscale-cli',mode:'complete',lang:'azcli',domains:['compute','monitor'],tags:['autoscale'],file:'shop-autoscale.sh',
 title:'Autoscale rules from the CLI',
-scenario:'Quarry Outdoor’s shop scale set: never fewer than <b>2</b>, at most 10. Add 2 when average CPU is over 70% for 5 minutes; remove <b>1</b> when under 30% for 10 minutes.',
+scenario:'Mossgate Outdoor’s shop scale set: never fewer than <b>2</b>, at most 10. Add 2 when average CPU is over 70% for 5 minutes; remove <b>1</b> when under 30% for 10 minutes.',
 learn:[['Autoscale a scale set with CLI',L+'azure/virtual-machine-scale-sets/tutorial-autoscale-cli'],['Autoscale best practices',L+'azure/azure-monitor/autoscale/autoscale-best-practices']],
-code:String.raw`az monitor autoscale create -g rg-quarry-shop --resource vmss-shop \
+code:String.raw`az monitor autoscale create -g rg-mossgt-shop --resource vmss-shop \
   --resource-type Microsoft.Compute/virtualMachineScaleSets \
   --name as-shop --min-count {{1}} --max-count 10 --count 2
 
-az monitor autoscale rule create -g rg-quarry-shop --autoscale-name as-shop \
+az monitor autoscale rule create -g rg-mossgt-shop --autoscale-name as-shop \
   --condition {{2}} --scale out 2
 
-az monitor autoscale rule create -g rg-quarry-shop --autoscale-name as-shop \
+az monitor autoscale rule create -g rg-mossgt-shop --autoscale-name as-shop \
   --condition "Percentage CPU < 30 avg 10m" --scale {{3}}`,
 b:[{a:'2',o:['0','1'],why:'The minimum is the floor autoscale never goes below.',w:{'0':'Would allow scaling to nothing.','1':'One instance means no redundancy; the brief says 2.'}},
 {a:'"Percentage CPU > 70 avg 5m"',o:['"avg Percentage CPU > 70"','"CPU > 70% for 5m"','"Percentage CPU > 70"'],why:'Autoscale condition syntax: <code>METRIC OP THRESHOLD AGGREGATION WINDOW</code>.',w:{'"avg Percentage CPU > 70"':'That’s metric alert syntax, not autoscale.','"CPU > 70% for 5m"':'Wrong metric name and format.','"Percentage CPU > 70"':'Missing aggregation and duration.'}},
@@ -511,32 +511,32 @@ out:['{ "profiles": [ { "capacity": { "minimum": "2", "maximum": "10", "default"
 
 S({id:'app-slots',mode:'complete',lang:'azcli',domains:['compute'],tags:['app-service'],file:'shop-slots.sh',
 title:'Staging slot with a sticky setting, then swap',
-scenario:'Bluefen Studios’ shop needs a <b>staging slot</b> at the lowest tier that supports one. Staging must always talk to the <b>sandbox</b> payment provider, even after a swap.',
+scenario:'Tallowmere Studios’ shop needs a <b>staging slot</b> at the lowest tier that supports one. Staging must always talk to the <b>sandbox</b> payment provider, even after a swap.',
 learn:[['Deployment slots',L+'azure/app-service/deploy-staging-slots'],['App Service plans',L+'azure/app-service/overview-hosting-plans']],
-code:String.raw`az appservice plan create -g rg-bluefen-web -n asp-bluefen --sku {{1}} --is-linux
-az webapp create -g rg-bluefen-web -p asp-bluefen -n app-bluefen-shop --runtime "NODE:20-lts"
+code:String.raw`az appservice plan create -g rg-tallow-web -n asp-tallow --sku {{1}} --is-linux
+az webapp create -g rg-tallow-web -p asp-tallow -n app-tallow-shop --runtime "NODE:20-lts"
 
-az webapp deployment slot create -g rg-bluefen-web -n app-bluefen-shop --slot staging
+az webapp deployment slot create -g rg-tallow-web -n app-tallow-shop --slot staging
 
-az webapp config appsettings set -g rg-bluefen-web -n app-bluefen-shop --slot staging \
+az webapp config appsettings set -g rg-tallow-web -n app-tallow-shop --slot staging \
   {{2}} PAYMENTS_MODE=sandbox
 
-az webapp deployment slot swap -g rg-bluefen-web -n app-bluefen-shop \
+az webapp deployment slot swap -g rg-tallow-web -n app-tallow-shop \
   --slot staging --target-slot {{3}}`,
 b:[{a:'S1',o:['B1','F1','P1v3'],why:'Deployment slots start at <b>Standard</b>.',w:{'B1':'Basic has no deployment slots.','F1':'Free has no deployment slots.','P1v3':'Works, but not the lowest tier with slots.'}},
 {a:'--slot-settings',o:['--settings'],why:'<code>--slot-settings</code> makes the value sticky to the slot, so it doesn’t travel with the swap.',w:{'--settings':'A normal setting swaps with the code, so production would end up in sandbox mode.'}},
 {a:'production',o:['main','live','default'],why:'The default slot is named <code>production</code>.',w:{'main':'Not the slot name.','live':'Not the slot name.','default':'Not the slot name.'}}],
-out:['Plan asp-bluefen: S1 (Standard)','Slot staging created','PAYMENTS_MODE=sandbox (slotSetting: true)','Swap staging → production: completed (warm-up then swap)']});
+out:['Plan asp-tallow: S1 (Standard)','Slot staging created','PAYMENTS_MODE=sandbox (slotSetting: true)','Swap staging → production: completed (warm-up then swap)']});
 
 S({id:'aci-etl',mode:'complete',lang:'azcli',domains:['compute','storage'],tags:['aci','files'],file:'nightly-etl.sh',
 title:'Nightly container job that writes to a file share',
-scenario:'Saltmarsh Labs runs a nightly ETL container: it should <b>retry if it crashes</b> but <b>stop once it succeeds</b>, and write results to the <code>etl-output</code> Azure Files share.',
+scenario:'Saltquill Labs runs a nightly ETL container: it should <b>retry if it crashes</b> but <b>stop once it succeeds</b>, and write results to the <code>etl-output</code> Azure Files share.',
 learn:[['Restart policies',L+'azure/container-instances/container-instances-restart-policy'],['Mount Azure Files in ACI',L+'azure/container-instances/container-instances-volume-azure-files']],
-code:String.raw`az container create -g rg-saltmarsh-jobs -n aci-nightly-etl \
-  --image stsaltmarshacr.azurecr.io/etl:1.4 \
+code:String.raw`az container create -g rg-saltquill-jobs -n aci-nightly-etl \
+  --image stsaltquillacr.azurecr.io/etl:1.4 \
   --os-type {{1}} --cpu 2 --memory 4 \
   --restart-policy {{2}} \
-  --azure-file-volume-account-name stsaltmarshlake \
+  --azure-file-volume-account-name stsaltquilllake \
   --azure-file-volume-account-key "$SA_KEY" \
   {{3}} \
   --azure-file-volume-mount-path /mnt/output \
@@ -544,35 +544,35 @@ code:String.raw`az container create -g rg-saltmarsh-jobs -n aci-nightly-etl \
 b:[{a:'Linux',o:['Windows'],t:'aci',why:'Azure Files volume mounts in ACI are supported for <b>Linux</b> containers only.',w:{'Windows':'ACI can’t mount Azure Files into Windows containers.'}},
 {a:'OnFailure',o:['Always','Never'],t:'aci',why:'<b>OnFailure</b> restarts on a non-zero exit only. A clean exit ends the group (and billing).',w:{'Always':'Restarts even after success: the job would loop forever.','Never':'A crash would leave the night’s run unfinished.'}},
 {a:'--azure-file-volume-share-name etl-output',o:['--azure-blob-container-name etl-output','--nfs-share etl-output'],t:'files',why:'ACI volumes can be Azure Files shares (also emptyDir, secret, git repo), not blob containers.',w:{'--azure-blob-container-name etl-output':'ACI can’t mount blob containers.','--nfs-share etl-output':'Not a parameter.'}}],
-out:['{ "provisioningState": "Succeeded", "restartPolicy": "OnFailure" }','Container etl: Terminated (exit 0) · output written to //stsaltmarshlake/etl-output']});
+out:['{ "provisioningState": "Succeeded", "restartPolicy": "OnFailure" }','Container etl: Terminated (exit 0) · output written to //stsaltquilllake/etl-output']});
 
 S({id:'aca-telemetry',mode:'complete',lang:'azcli',domains:['compute'],tags:['aca'],file:'telemetry-app.sh',
 title:'Container App that scales to zero',
-scenario:'Kestrel Robotics’ telemetry API should be reachable <b>from the internet</b> on port 8080 and cost <b>nothing when idle</b>.',
+scenario:'Brindlewick Robotics’ telemetry API should be reachable <b>from the internet</b> on port 8080 and cost <b>nothing when idle</b>.',
 learn:[['Scaling in Container Apps',L+'azure/container-apps/scale-app'],['Ingress',L+'azure/container-apps/ingress-overview']],
-code:String.raw`az containerapp env create -g rg-kestrel-api -n cae-kestrel --location canadacentral
+code:String.raw`az containerapp env create -g rg-brindle-api -n cae-brindle --location canadacentral
 
-az containerapp create -g rg-kestrel-api -n ca-telemetry \
+az containerapp create -g rg-brindle-api -n ca-telemetry \
   --environment {{1}} \
-  --image kestrelacr.azurecr.io/telemetry:2.0 \
+  --image brindleacr.azurecr.io/telemetry:2.0 \
   --ingress {{2}} --target-port 8080 \
   --min-replicas {{3}} --max-replicas 5 \
-  --registry-server kestrelacr.azurecr.io --registry-identity system`,
-b:[{a:'cae-kestrel',o:['asp-kestrel','aks-kestrel'],why:'Container apps run inside a <b>Container Apps environment</b>.',w:{'asp-kestrel':'That is an App Service plan.','aks-kestrel':'That is an AKS cluster.'}},
+  --registry-server brindleacr.azurecr.io --registry-identity system`,
+b:[{a:'cae-brindle',o:['asp-brindle','aks-brindle'],why:'Container apps run inside a <b>Container Apps environment</b>.',w:{'asp-brindle':'That is an App Service plan.','aks-brindle':'That is an AKS cluster.'}},
 {a:'external',o:['internal','public'],why:'<b>external</b> = reachable from the internet.',w:{'internal':'Only reachable inside the environment / VNet.','public':'Not a valid value; use external.'}},
 {a:'0',o:['1','-1'],why:'Min replicas 0 lets the app scale to zero; HTTP traffic wakes it.',w:{'1':'Always one replica running, so it’s never free.','-1':'Not valid.'}}],
-out:['Environment cae-kestrel: Succeeded','Container app ca-telemetry: https://ca-telemetry.<env>.canadacentral.azurecontainerapps.io','Replicas: 0 (idle)']});
+out:['Environment cae-brindle: Succeeded','Container app ca-telemetry: https://ca-telemetry.<env>.canadacentral.azurecontainerapps.io','Replicas: 0 (idle)']});
 
 S({id:'bicep-sub',mode:'complete',lang:'bicep',domains:['compute','identity'],tags:['bicep'],file:'main.bicep',
 title:'Bicep at subscription scope: create the group, then deploy into it',
-scenario:'Vantage Rail wants one Bicep file that <b>creates the resource group</b> and deploys the network module into it. Preview the changes before deploying.',
+scenario:'Corvane Rail wants one Bicep file that <b>creates the resource group</b> and deploys the network module into it. Preview the changes before deploying.',
 learn:[['Deploy to a subscription with Bicep',L+'azure/azure-resource-manager/bicep/deploy-to-subscription'],['What-if',L+'azure/azure-resource-manager/bicep/deploy-what-if']],
 code:String.raw`targetScope = {{1}}
 
 param location string = 'canadacentral'
 
 resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
-  name: 'rg-vantage-signals'
+  name: 'rg-corvane-signals'
   location: location
 }
 
@@ -588,11 +588,11 @@ b:[{a:`'subscription'`,o:[`'resourceGroup'`,`'managementGroup'`,`'tenant'`],why:
 {a:'rg',o:['resourceGroup()','subscription()'],why:'Point the module at the group you just declared; Bicep adds the dependency for you.',w:{'resourceGroup()':'At subscription scope there is no “current” resource group.','subscription()':'The module deploys resource-group-level resources.'}},
 {a:'what-if',o:['validate','show','preview'],why:'<b>what-if</b> lists creates, changes and deletes without deploying.',w:{'validate':'Only checks that the template would be accepted.','show':'Shows an existing deployment.','preview':'Not a command.'}},
 {a:'sub',o:['group','mg','tenant'],why:'Subscription-scope templates deploy with <code>az deployment sub</code>.',w:{'group':'Needs an existing resource group, and the template scope must match.','mg':'Management group deployments.','tenant':'Tenant deployments.'}}],
-out:['Resource changes: 3 to create.','+ Microsoft.Resources/resourceGroups/rg-vantage-signals','+ Microsoft.Network/virtualNetworks/vnet-signals','ProvisioningState: Succeeded']});
+out:['Resource changes: 3 to create.','+ Microsoft.Resources/resourceGroups/rg-corvane-signals','+ Microsoft.Network/virtualNetworks/vnet-signals','ProvisioningState: Succeeded']});
 
 S({id:'arm-copy',mode:'fix',lang:'json',domains:['compute','storage'],tags:['bicep'],file:'lab-accounts.json',
 title:'Fix it: the copy loop numbered from zero and ran all at once',
-scenario:'Granite Peak’s ARM template creates four lab storage accounts named <code>stgranitelab1</code> through <code>stgranitelab4</code>, deployed <b>two at a time</b>.',
+scenario:'Granvale’s ARM template creates four lab storage accounts named <code>stgranitelab1</code> through <code>stgranitelab4</code>, deployed <b>two at a time</b>.',
 symptom:'Deployment created stgranitelab0, stgranitelab1, stgranitelab2, stgranitelab3, all four in parallel.',
 learn:[['Resource iteration in ARM templates',L+'azure/azure-resource-manager/templates/copy-resources']],
 code:String.raw`"resources": [ {
@@ -616,7 +616,7 @@ out:['labCopy[0] → stgranitelab1 ✓  labCopy[1] → stgranitelab2 ✓','labCo
 
 S({id:'vm-zone-resize',mode:'complete',lang:'azcli',domains:['compute','networking'],tags:['vm'],file:'emr-app-vm.sh',
 title:'Zonal VM with no public IP, then resize it',
-scenario:'Harborline’s EMR app VM goes into <b>zone 2</b>, gets <b>no public IP</b>, and sits behind the subnet’s NSG. A month later it needs <b>twice the vCPUs</b> while keeping its Premium SSD.',
+scenario:'Harrowfen’s EMR app VM goes into <b>zone 2</b>, gets <b>no public IP</b>, and sits behind the subnet’s NSG. A month later it needs <b>twice the vCPUs</b> while keeping its Premium SSD.',
 learn:[['Create a VM with Azure CLI',L+'azure/virtual-machines/windows/quick-create-cli'],['Resize a VM',L+'azure/virtual-machines/sizes/resize-vm']],
 code:String.raw`az vm create -g rg-harbor-emr -n vm-emr-app1 --image Win2022Datacenter \
   --size Standard_D4s_v5 {{1}} 2 \
@@ -634,7 +634,7 @@ out:['{ "zones": "2", "publicIpAddress": "", "privateIpAddress": "10.12.1.4" }',
 /* ═════════════ NETWORKING ═════════════ */
 S({id:'hub-spoke',mode:'complete',lang:'azcli',domains:['networking'],tags:['peering','vpn'],file:'hub-spoke.sh',
 title:'Hub-and-spoke peering with gateway transit',
-scenario:'Vantage Rail’s hub VNet holds the VPN gateway. <code>vnet-spoke1</code> must reach the hub <b>and on-premises through the hub’s gateway</b>.',
+scenario:'Corvane Rail’s hub VNet holds the VPN gateway. <code>vnet-spoke1</code> must reach the hub <b>and on-premises through the hub’s gateway</b>.',
 learn:[['VNet peering overview',L+'azure/virtual-network/virtual-network-peering-overview'],['Gateway transit',L+'azure/vpn-gateway/vpn-gateway-peering-gateway-transit']],
 code:String.raw`az network vnet peering create -g rg-net -n hub-to-spoke1 \
   --vnet-name vnet-hub --remote-vnet vnet-spoke1 \
@@ -653,7 +653,7 @@ out:['hub-to-spoke1  peeringState: Connected  allowGatewayTransit: true','spoke1
 
 S({id:'udr-nva',mode:'complete',lang:'azcli',domains:['networking'],tags:['udr'],file:'force-egress.sh',
 title:'Force all internet egress through a firewall VM',
-scenario:'Lumen Bakery runs a firewall VM (NVA) at <b>10.0.1.4</b> in the hub. Every internet-bound packet from <code>snet-app</code> in spoke1 must go through it.',
+scenario:'Crumbhollow Bakery runs a firewall VM (NVA) at <b>10.0.1.4</b> in the hub. Every internet-bound packet from <code>snet-app</code> in spoke1 must go through it.',
 learn:[['Virtual network traffic routing',L+'azure/virtual-network/virtual-networks-udr-overview'],['Create a route table',L+'azure/virtual-network/manage-route-table']],
 code:String.raw`az network route-table create -g rg-net -n rt-spoke-egress --disable-bgp-route-propagation true
 
@@ -673,7 +673,7 @@ out:['Route default-via-fw: 0.0.0.0/0 → VirtualAppliance 10.0.1.4','snet-app r
 
 S({id:'udr-none',mode:'fix',lang:'azcli',domains:['networking'],tags:['udr','ipflow','peering'],file:'block-legacy.sh',
 title:'Fix it: a block rule that cut off the database',
-scenario:'Orchard &amp; Pike wanted to block only the retired <code>10.2.9.0/24</code> subnet in a peered VNet. The live database at <b>10.2.4.10</b> (same peered VNet) must stay reachable.',
+scenario:'Orrin &amp; Pell wanted to block only the retired <code>10.2.9.0/24</code> subnet in a peered VNet. The live database at <b>10.2.4.10</b> (same peered VNet) must stay reachable.',
 symptom:'vm-app-01 → 10.2.4.10:1433 times out.\nshow-next-hop: { "nextHopType": "None", "routeTableId": ".../rt-app" }',
 learn:[['How Azure selects a route',L+'azure/virtual-network/virtual-networks-udr-overview#how-azure-selects-a-route'],['Next hop',L+'azure/network-watcher/next-hop-overview']],
 code:String.raw`az network route-table route create -g rg-net --route-table-name rt-app \
@@ -688,7 +688,7 @@ out:['Route block-legacy: 10.2.9.0/24 → None','{ "nextHopType": "VNetPeering",
 
 S({id:'nsg-layers',mode:'fix',lang:'azcli',domains:['networking'],tags:['nsg'],file:'web01-https.sh',
 title:'Fix it: HTTPS allowed on the subnet, still blocked',
-scenario:'Quarry Outdoor’s <code>web01</code> has an NSG on its subnet <b>and</b> one on its NIC. Internet users must reach it on <b>443</b>.',
+scenario:'Mossgate Outdoor’s <code>web01</code> has an NSG on its subnet <b>and</b> one on its NIC. Internet users must reach it on <b>443</b>.',
 symptom:'Browsers time out on https://web01.\nEffective security rules: nsg-snet-web allow-https (200) ✓ → nsg-nic-web01 deny-all-in (300) ✗',
 learn:[['How NSGs filter traffic',L+'azure/virtual-network/network-security-group-how-it-works'],['Security rules',L+'azure/virtual-network/network-security-groups-overview#security-rules']],
 code:String.raw`# Subnet NSG (already fine)
@@ -711,7 +711,7 @@ out:['Effective: nsg-snet-web allow-https (200) ✓','Effective: nsg-nic-web01 a
 
 S({id:'pe-storage',mode:'complete',lang:'azcli',domains:['networking','storage'],tags:['private-endpoint','private-dns'],file:'records-private.sh',
 title:'Private endpoint for blob storage with working DNS',
-scenario:'Harborline’s records account must be reachable <b>only by a private IP</b> in <code>vnet-harbor</code>, with the normal <code>stharborrecords.blob.core.windows.net</code> name resolving to that IP. Public network access is then turned off.',
+scenario:'Harrowfen’s records account must be reachable <b>only by a private IP</b> in <code>vnet-harbor</code>, with the normal <code>stharborrecords.blob.core.windows.net</code> name resolving to that IP. Public network access is then turned off.',
 learn:[['Private endpoint DNS',L+'azure/private-link/private-endpoint-dns'],['Private endpoints for storage',L+'azure/storage/common/storage-private-endpoints']],
 code:String.raw`SA_ID=$(az storage account show -g rg-harbor -n stharborrecords --query id -o tsv)
 
@@ -739,16 +739,16 @@ out:['Private endpoint pe-records-blob: 10.20.5.4','Zone group default: A stharb
 
 S({id:'svc-endpoint',mode:'fix',lang:'azcli',domains:['networking','storage'],tags:['svc-endpoint'],file:'erp-storage-firewall.sh',
 title:'Fix it: storage firewall that let everyone in',
-scenario:'Quarry Outdoor’s ERP subnet must be the <b>only network</b> that reaches <code>stquarryerp</code>, apart from Azure Backup (a trusted Microsoft service).',
-symptom:'network-rule add: Subnet snet-erp does not have service endpoint Microsoft.Storage enabled.\nSecurity scan: stquarryerp still reachable from the internet.',
+scenario:'Mossgate Outdoor’s ERP subnet must be the <b>only network</b> that reaches <code>stmossgterp</code>, apart from Azure Backup (a trusted Microsoft service).',
+symptom:'network-rule add: Subnet snet-erp does not have service endpoint Microsoft.Storage enabled.\nSecurity scan: stmossgterp still reachable from the internet.',
 learn:[['Service endpoints',L+'azure/virtual-network/virtual-network-service-endpoints-overview'],['Storage network security',L+'azure/storage/common/storage-network-security']],
-code:String.raw`az network vnet subnet update -g rg-quarry --vnet-name vnet-quarry -n snet-erp \
+code:String.raw`az network vnet subnet update -g rg-mossgt --vnet-name vnet-mossgt -n snet-erp \
   --service-endpoints {{1}}
 
-az storage account network-rule add -g rg-quarry --account-name stquarryerp \
-  --vnet-name vnet-quarry --subnet snet-erp
+az storage account network-rule add -g rg-mossgt --account-name stmossgterp \
+  --vnet-name vnet-mossgt --subnet snet-erp
 
-az storage account update -g rg-quarry -n stquarryerp \
+az storage account update -g rg-mossgt -n stmossgterp \
   --default-action {{2}} --bypass {{3}}`,
 b:[{a:'Microsoft.Storage',bug:'Microsoft.Sql',o:['Microsoft.Web'],why:'The subnet needs the <b>Microsoft.Storage</b> endpoint before a storage network rule can reference it.',w:{'Microsoft.Sql':'That’s for Azure SQL.','Microsoft.Web':'That’s for App Service.'}},
 {a:'Deny',bug:'Allow',o:['Block'],why:'With <code>Allow</code>, network rules are just a list; everything still gets in. <b>Deny</b> enforces them.',w:{'Allow':'The firewall isn’t enforced.','Block':'Valid values are Allow and Deny.'}},
@@ -757,58 +757,58 @@ out:['snet-erp serviceEndpoints: [ Microsoft.Storage ]','networkRuleSet: default
 
 S({id:'private-dns',mode:'complete',lang:'pwsh',domains:['networking'],tags:['private-dns'],file:'corp-zone.ps1',
 title:'Private DNS zone: auto-register the hub, resolve from the spoke',
-scenario:'Vantage Rail creates <code>corp.vantage.internal</code>. VMs in the <b>hub</b> register themselves automatically; VMs in <b>spoke1</b> only need to <b>resolve</b> names. Add an LDAP record at 10.10.2.15.',
+scenario:'Corvane Rail creates <code>corp.corvane.internal</code>. VMs in the <b>hub</b> register themselves automatically; VMs in <b>spoke1</b> only need to <b>resolve</b> names. Add an LDAP record at 10.10.2.15.',
 learn:[['Private DNS auto-registration',L+'azure/dns/private-dns-autoregistration'],['Private DNS with PowerShell',L+'azure/dns/private-dns-getstarted-powershell']],
-code:String.raw`New-AzPrivateDnsZone -ResourceGroupName rg-net -Name "corp.vantage.internal"
+code:String.raw`New-AzPrivateDnsZone -ResourceGroupName rg-net -Name "corp.corvane.internal"
 
 New-AzPrivateDnsVirtualNetworkLink -ResourceGroupName rg-net ~
-    -ZoneName "corp.vantage.internal" -Name link-hub ~
+    -ZoneName "corp.corvane.internal" -Name link-hub ~
     -VirtualNetworkId $hub.Id {{1}}
 
 New-AzPrivateDnsVirtualNetworkLink -ResourceGroupName rg-net ~
-    -ZoneName "corp.vantage.internal" -Name link-spoke1 ~
+    -ZoneName "corp.corvane.internal" -Name link-spoke1 ~
     -VirtualNetworkId $spoke1.Id
 
-New-AzPrivateDnsRecordSet -ResourceGroupName rg-net -ZoneName "corp.vantage.internal" ~
+New-AzPrivateDnsRecordSet -ResourceGroupName rg-net -ZoneName "corp.corvane.internal" ~
     -Name "ldap" -RecordType {{2}} -Ttl 300 ~
     -PrivateDnsRecords (New-AzPrivateDnsRecordConfig {{3}} "10.10.2.15")`,
 b:[{a:'-EnableRegistration',o:['-RegistrationEnabled','-AutoRegister'],why:'A link with <code>-EnableRegistration</code> auto-registers VM A records. The spoke link without it is resolution-only.',w:{'-RegistrationEnabled':'That’s the CLI flag name (--registration-enabled), not the PowerShell parameter.','-AutoRegister':'Not a parameter.'}},
 {a:'A',o:['CNAME','PTR','SRV'],why:'Name → IPv4 is an A record.',w:{'CNAME':'Points a name at another name.','PTR':'Reverse lookup (IP → name).','SRV':'Service locator (port + host).'}},
 {a:'-Ipv4Address',o:['-Cname','-IPAddress','-Value'],why:'A records take <code>-Ipv4Address</code>.',w:{'-Cname':'For CNAME records.','-IPAddress':'Not the parameter name.','-Value':'Not a parameter.'}}],
-out:['Zone corp.vantage.internal: 2 virtual network links (1 registration)','vm-hub-dc01.corp.vantage.internal → 10.10.0.4 (auto-registered)','ldap.corp.vantage.internal → 10.10.2.15']});
+out:['Zone corp.corvane.internal: 2 virtual network links (1 registration)','vm-hub-dc01.corp.corvane.internal → 10.10.0.4 (auto-registered)','ldap.corp.corvane.internal → 10.10.2.15']});
 
 S({id:'dns-delegation',mode:'complete',lang:'azcli',domains:['networking'],tags:['dns-deleg'],file:'delegate-labs.sh',
 title:'Delegate a child zone to Azure DNS',
-scenario:'Kestrel Robotics hosts <code>kestrelrobotics.example</code> in Azure DNS. The R&amp;D team gets its own zone for <b>labs.kestrelrobotics.example</b> that they manage separately.',
+scenario:'Brindlewick Robotics hosts <code>brindlerobotics.example</code> in Azure DNS. The R&amp;D team gets its own zone for <b>labs.brindlerobotics.example</b> that they manage separately.',
 learn:[['Delegate a subdomain',L+'azure/dns/delegate-subdomain'],['DNS zones and records',L+'azure/dns/dns-zones-records']],
 code:String.raw`az network dns zone create -g rg-dns -n {{1}}
 
-NS=$(az network dns zone show -g rg-dns -n labs.kestrelrobotics.example \
+NS=$(az network dns zone show -g rg-dns -n labs.brindlerobotics.example \
       --query {{2}} -o tsv)
 
 for ns in $NS; do
   az network dns record-set {{3}} add-record -g rg-dns \
     -z {{4}} -n labs -d "$ns"
 done`,
-b:[{a:'labs.kestrelrobotics.example',o:['labs','kestrelrobotics.example/labs'],why:'A child zone is a full zone named with the full domain.',w:{'labs':'That would be a zone for the TLD-like name “labs”.','kestrelrobotics.example/labs':'Zone names are DNS names, not paths.'}},
+b:[{a:'labs.brindlerobotics.example',o:['labs','brindlerobotics.example/labs'],why:'A child zone is a full zone named with the full domain.',w:{'labs':'That would be a zone for the TLD-like name “labs”.','brindlerobotics.example/labs':'Zone names are DNS names, not paths.'}},
 {a:'nameServers',o:['nameServer','soa','numberOfRecordSets'],why:'The child zone’s assigned Azure name servers are what the parent must point to.',w:{'nameServer':'The property is plural: nameServers.','soa':'Start of authority; not the delegation targets.','numberOfRecordSets':'Just a count.'}},
 {a:'ns',o:['soa','cname','a'],why:'Delegation = <b>NS</b> records.',w:{'soa':'There’s one per zone; it isn’t delegation.','cname':'An alias; it can’t delegate a zone.','a':'An address record.'}},
-{a:'kestrelrobotics.example',o:['labs.kestrelrobotics.example'],why:'Delegation records live in the <b>parent</b> zone, under the child’s label <code>labs</code>.',w:{'labs.kestrelrobotics.example':'The child already has its own NS records at its apex; the parent is what needs pointing.'}}],
-out:['Zone labs.kestrelrobotics.example: ns1-03.azure-dns.com. ns2-03.azure-dns.net. …','Parent kestrelrobotics.example: NS labs → 4 name servers','nslookup -type=NS labs.kestrelrobotics.example → ns1-03.azure-dns.com …']});
+{a:'brindlerobotics.example',o:['labs.brindlerobotics.example'],why:'Delegation records live in the <b>parent</b> zone, under the child’s label <code>labs</code>.',w:{'labs.brindlerobotics.example':'The child already has its own NS records at its apex; the parent is what needs pointing.'}}],
+out:['Zone labs.brindlerobotics.example: ns1-03.azure-dns.com. ns2-03.azure-dns.net. …','Parent brindlerobotics.example: NS labs → 4 name servers','nslookup -type=NS labs.brindlerobotics.example → ns1-03.azure-dns.com …']});
 
 S({id:'lb-standard',mode:'complete',lang:'azcli',domains:['networking','compute'],tags:['lb','nsg'],file:'orders-lb.sh',
 title:'Zone-redundant Standard Load Balancer',
-scenario:'Lumen Bakery publishes its orders web tier on port 80 through a <b>zone-redundant public</b> load balancer, sending traffic only to instances whose <code>/healthz</code> returns 200.',
+scenario:'Crumbhollow Bakery publishes its orders web tier on port 80 through a <b>zone-redundant public</b> load balancer, sending traffic only to instances whose <code>/healthz</code> returns 200.',
 learn:[['Create a public Standard load balancer with CLI',L+'azure/load-balancer/quickstart-load-balancer-standard-public-cli'],['Health probes',L+'azure/load-balancer/load-balancer-custom-probe-overview']],
-code:String.raw`az network public-ip create -g rg-lumen -n pip-lb-orders --sku {{1}} --zone 1 2 3
+code:String.raw`az network public-ip create -g rg-crumb -n pip-lb-orders --sku {{1}} --zone 1 2 3
 
-az network lb create -g rg-lumen -n lb-orders --sku Standard \
+az network lb create -g rg-crumb -n lb-orders --sku Standard \
   --public-ip-address pip-lb-orders --frontend-ip-name fe-orders --backend-pool-name be-orders
 
-az network lb probe create -g rg-lumen --lb-name lb-orders -n probe-health \
+az network lb probe create -g rg-crumb --lb-name lb-orders -n probe-health \
   --protocol {{2}} --port 80 --path /healthz
 
-az network lb rule create -g rg-lumen --lb-name lb-orders -n rule-http \
+az network lb rule create -g rg-crumb --lb-name lb-orders -n rule-http \
   --protocol Tcp --frontend-port 80 --backend-port 80 \
   --frontend-ip-name fe-orders --backend-pool-name be-orders --probe-name {{3}}
 
@@ -821,7 +821,7 @@ out:['pip-lb-orders: Standard, zones [1,2,3]','probe-health: Http :80 /healthz',
 
 S({id:'vpn-s2s',mode:'complete',lang:'azcli',domains:['networking'],tags:['vpn'],file:'plant-vpn.sh',
 title:'Site-to-site VPN to the plant',
-scenario:'Kestrel Robotics connects its factory (LAN <code>192.168.50.0/24</code>, VPN device public IP <b>203.0.113.40</b>) to the hub VNet over IPsec.',
+scenario:'Brindlewick Robotics connects its factory (LAN <code>192.168.50.0/24</code>, VPN device public IP <b>203.0.113.40</b>) to the hub VNet over IPsec.',
 learn:[['Site-to-site VPN with CLI',L+'azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-cli'],['Gateway subnet',L+'azure/vpn-gateway/vpn-gateway-about-vpn-gateway-settings#gwsub']],
 code:String.raw`az network vnet subnet create -g rg-net --vnet-name vnet-hub \
   -n {{1}} --address-prefixes 10.0.255.0/27
@@ -843,14 +843,14 @@ out:['GatewaySubnet 10.0.255.0/27 created','vgw-hub provisioning (this takes 30�
 
 S({id:'nat-gw',mode:'complete',lang:'azcli',domains:['networking'],tags:['nat'],file:'egress-ip.sh',
 title:'One fixed outbound IP with a NAT gateway',
-scenario:'Saltmarsh Labs’ worker VMs call a partner API that <b>allow-lists one IP</b>. Some workers have instance-level public IPs left over from testing.',
+scenario:'Saltquill Labs’ worker VMs call a partner API that <b>allow-lists one IP</b>. Some workers have instance-level public IPs left over from testing.',
 learn:[['NAT gateway overview',L+'azure/nat-gateway/nat-overview'],['Outbound connectivity',L+'azure/load-balancer/load-balancer-outbound-connections']],
-code:String.raw`az network public-ip create -g rg-saltmarsh -n pip-nat --sku Standard --allocation-method {{1}}
+code:String.raw`az network public-ip create -g rg-saltquill -n pip-nat --sku Standard --allocation-method {{1}}
 
-az network nat gateway create -g rg-saltmarsh -n ng-egress \
+az network nat gateway create -g rg-saltquill -n ng-egress \
   --public-ip-addresses pip-nat --idle-timeout 10
 
-az network vnet subnet update -g rg-saltmarsh --vnet-name vnet-lab -n snet-workers \
+az network vnet subnet update -g rg-saltquill --vnet-name vnet-lab -n snet-workers \
   {{2}} ng-egress
 
 # Outbound traffic from snet-workers now leaves via: {{3}}`,
@@ -861,7 +861,7 @@ out:['pip-nat: 20.104.7.91 (Static)','snet-workers natGateway: ng-egress','curl 
 
 S({id:'nw-diagnose',mode:'complete',lang:'azcli',domains:['networking','monitor'],tags:['ipflow'],file:'diagnose-sis.sh',
 title:'Pick the right Network Watcher tool',
-scenario:'Granite Peak has three questions about <code>vm-sis-db</code>: (1) is an NSG blocking RDP from the jump box? (2) where does its internet traffic actually go? (3) keep 30 days of who-talked-to-whom history for the whole VNet.',
+scenario:'Granvale has three questions about <code>vm-sis-db</code>: (1) is an NSG blocking RDP from the jump box? (2) where does its internet traffic actually go? (3) keep 30 days of who-talked-to-whom history for the whole VNet.',
 learn:[['IP flow verify',L+'azure/network-watcher/ip-flow-verify-overview'],['Next hop',L+'azure/network-watcher/next-hop-overview'],['VNet flow logs',L+'azure/network-watcher/vnet-flow-logs-overview']],
 code:String.raw`# (1) Is an NSG blocking RDP from 10.30.0.4?
 az network watcher {{1}} -g rg-granite --vm vm-sis-db \
@@ -882,10 +882,10 @@ out:['{ "access": "Deny", "ruleName": "securityRules/deny-rdp-from-jump" }','{ "
 /* ═════════════ MONITOR & MAINTAIN ═════════════ */
 S({id:'diag-blob',mode:'complete',lang:'azcli',domains:['monitor','storage'],tags:['diag'],file:'blob-diagnostics.sh',
 title:'Send blob delete logs to Log Analytics',
-scenario:'Lumen Bakery wants to <b>query who deleted blobs</b> in <code>stlumenrecipes</code> using KQL in the <code>law-ops</code> workspace.',
+scenario:'Crumbhollow Bakery wants to <b>query who deleted blobs</b> in <code>stcrumbrecipes</code> using KQL in the <code>law-ops</code> workspace.',
 learn:[['Diagnostic settings',L+'azure/azure-monitor/data-collection/diagnostic-settings'],['Monitor Blob Storage',L+'azure/storage/blobs/monitor-blob-storage']],
 code:String.raw`WS=$(az monitor log-analytics workspace show -g rg-ops -n law-ops --query id -o tsv)
-SA_ID=$(az storage account show -g rg-lumen -n stlumenrecipes --query id -o tsv)
+SA_ID=$(az storage account show -g rg-crumb -n stcrumbrecipes --query id -o tsv)
 
 az monitor diagnostic-settings create -n blob-to-law \
   --resource "$SA_ID/{{1}}" \
@@ -898,7 +898,7 @@ out:['{ "name": "blob-to-law", "logs": [ StorageDelete ✓, StorageWrite ✓ ] }
 
 S({id:'kql-heartbeat',mode:'complete',lang:'kql',domains:['monitor','compute'],tags:['kql','ama'],file:'silent-machines.kql',
 title:'KQL: which machines went silent?',
-scenario:'Granite Peak wants a list of machines whose agent hasn’t sent a heartbeat for more than <b>15 minutes</b>, looking back over the last day, <b>quietest first</b>.',
+scenario:'Granvale wants a list of machines whose agent hasn’t sent a heartbeat for more than <b>15 minutes</b>, looking back over the last day, <b>quietest first</b>.',
 learn:[['Log queries overview',L+'azure/azure-monitor/logs/log-query-overview'],['summarize operator',L+'kusto/query/summarize-operator']],
 code:String.raw`Heartbeat
 | where TimeGenerated > {{1}}
@@ -912,7 +912,7 @@ out:['Computer          LastBeat','vm-sis-db         2026-11-25 03:12','vm-sis-w
 
 S({id:'kql-activity',mode:'complete',lang:'kql',domains:['monitor','identity'],tags:['kql','alerts'],file:'who-deleted.kql',
 title:'KQL: who deleted the VM?',
-scenario:'A VM vanished from Orchard &amp; Pike’s subscription. The Activity log is exported to Log Analytics. Find <b>who</b> successfully deleted it, and when.',
+scenario:'A VM vanished from Orrin &amp; Pell’s subscription. The Activity log is exported to Log Analytics. Find <b>who</b> successfully deleted it, and when.',
 learn:[['AzureActivity table',L+'azure/azure-monitor/reference/tables/azureactivity'],['Activity log',L+'azure/azure-monitor/essentials/activity-log']],
 code:String.raw`AzureActivity
 | where OperationNameValue == {{1}}
@@ -921,14 +921,14 @@ code:String.raw`AzureActivity
 b:[{a:'"MICROSOFT.COMPUTE/VIRTUALMACHINES/DELETE"',o:['"Delete Virtual Machine"','"Microsoft.Compute/virtualMachines/write"'],why:'OperationNameValue holds the operation in upper case; == is case-sensitive (=~ isn’t).',w:{'"Delete Virtual Machine"':'That’s the display name, not OperationNameValue.','"Microsoft.Compute/virtualMachines/write"':'Create or update, not delete.'}},
 {a:'"Success"',o:['"Succeeded"','"Accept"'],why:'Delete operations log Start/Accept and then Success (or Failure).',w:{'"Succeeded"':'That’s provisioning state wording, not activity status.','"Accept"':'Accepted ≠ done.'}},
 {a:'Caller',o:['CallerIpAddress','Authorization'],why:'<b>Caller</b> is the UPN or app ID that did it.',w:{'CallerIpAddress':'Where from, not who.','Authorization':'The RBAC context, not the identity.'}}],
-out:['TimeGenerated         Caller                       ResourceGroup','2026-11-24 22:41      it-temp@orchardpike.example  RG-ORCHARD']});
+out:['TimeGenerated         Caller                       ResourceGroup','2026-11-24 22:41      it-temp@orrinpike.example  RG-ORRIN']});
 
 S({id:'alerts-stack',mode:'complete',lang:'azcli',domains:['monitor'],tags:['alerts','autoscale'],file:'oncall-alerts.sh',
 title:'Action group + metric alert + activity log alert',
-scenario:'Granite Peak on-call gets an email when <code>vm-sis-db</code> averages <b>over 85% CPU</b>, and when <b>any VM in the subscription is deleted</b>.',
+scenario:'Granvale on-call gets an email when <code>vm-sis-db</code> averages <b>over 85% CPU</b>, and when <b>any VM in the subscription is deleted</b>.',
 learn:[['Action groups',L+'azure/azure-monitor/alerts/action-groups'],['Create a metric alert with CLI',L+'azure/azure-monitor/alerts/azure-cli-metrics-alert-sample'],['Activity log alerts',L+'azure/azure-monitor/alerts/activity-log-alerts']],
 code:String.raw`az monitor action-group create -g rg-ops -n ag-oncall --short-name {{1}} \
-  --action email oncall oncall@granitepeak.example
+  --action email oncall oncall@granvale.example
 
 az monitor metrics alert create -g rg-ops -n cpu-high --scopes "$VM_ID" \
   --condition {{2}} --window-size 5m --evaluation-frequency 1m \
@@ -945,7 +945,7 @@ out:['ag-oncall: email oncall@…','cpu-high: avg Percentage CPU > 85 (5m window
 
 S({id:'ama-dcr',mode:'complete',lang:'azcli',domains:['monitor','compute'],tags:['ama'],file:'emr-monitoring.sh',
 title:'Azure Monitor Agent + a data collection rule',
-scenario:'Harborline’s Windows Server 2022 VM <code>vm-emr-app1</code> must send its event logs and performance counters to Log Analytics, using the current agent.',
+scenario:'Harrowfen’s Windows Server 2022 VM <code>vm-emr-app1</code> must send its event logs and performance counters to Log Analytics, using the current agent.',
 learn:[['Manage Azure Monitor Agent',L+'azure/azure-monitor/agents/azure-monitor-agent-manage'],['Data collection rules',L+'azure/azure-monitor/data-collection/data-collection-rule-overview']],
 code:String.raw`az vm extension set -g rg-harbor-emr --vm-name vm-emr-app1 \
   --name {{1}} --publisher Microsoft.Azure.Monitor --enable-auto-upgrade true
@@ -961,29 +961,29 @@ out:['Extension AzureMonitorWindowsAgent: Succeeded','DCR association dcra-emr-a
 
 S({id:'backup-crr',mode:'complete',lang:'azcli',domains:['monitor','compute'],tags:['restore','vault'],file:'dr-restore.sh',
 title:'Cross Region Restore of a VM’s disks',
-scenario:'Orchard &amp; Pike wants to restore VM backups <b>in the paired region</b> during a regional outage. Set up the vault correctly, then run the restore.',
+scenario:'Orrin &amp; Pell wants to restore VM backups <b>in the paired region</b> during a regional outage. Set up the vault correctly, then run the restore.',
 learn:[['Cross Region Restore',L+'azure/backup/backup-create-recovery-services-vault#set-cross-region-restore'],['Restore VM disks with CLI',L+'azure/backup/tutorial-restore-disk']],
-code:String.raw`az backup vault create -g rg-orchard-bk -n rsv-orchard --location canadacentral
+code:String.raw`az backup vault create -g rg-orrin-bk -n rsv-orrin --location canadacentral
 
 # Change storage redundancy {{1}} the first item is protected
-az backup vault backup-properties set -g rg-orchard-bk -n rsv-orchard \
+az backup vault backup-properties set -g rg-orrin-bk -n rsv-orrin \
   --backup-storage-redundancy {{2}} --cross-region-restore-flag true
 
-az backup restore {{3}} -g rg-orchard-bk --vault-name rsv-orchard \
+az backup restore {{3}} -g rg-orrin-bk --vault-name rsv-orrin \
   --container-name vm-docs-01 --item-name vm-docs-01 --rp-name "$RP" \
-  --storage-account "$STAGING_SA_CE" --target-resource-group rg-orchard-dr \
+  --storage-account "$STAGING_SA_CE" --target-resource-group rg-orrin-dr \
   {{4}}`,
 b:[{a:'before',o:['after','any time after'],t:'vault',why:'Redundancy is locked once items are protected; set it <b>before</b> the first backup.',w:{'after':'Too late: it can’t change once backups exist.','any time after':'It’s locked once items are protected.'}},
 {a:'GeoRedundant',o:['LocallyRedundant','ZoneRedundant'],t:'vault',why:'Cross Region Restore needs <b>GRS</b>; backups replicate to the paired region.',w:{'LocallyRedundant':'No copy in another region.','ZoneRedundant':'Zones in one region; no paired-region copy.'}},
 {a:'restore-disks',o:['restore-files','restore-azurewl'],t:'restore',why:'Restore the managed disks, then create the VM (or deploy the template the vault generates).',w:{'restore-files':'There is no restore-files command; file-level recovery is under “az backup restore files”.','restore-azurewl':'For SQL or SAP HANA in VMs.'}},
 {a:'--use-secondary-region',o:['--target-zone 2','--restore-mode AlternateLocation'],t:'restore',why:'Runs the restore from the replicated secondary copy.',w:{'--target-zone 2':'Cross-zone restore in the same region.','--restore-mode AlternateLocation':'Chooses original vs alternate location; it doesn’t switch to the secondary region’s copy.'}}],
-out:['Vault rsv-orchard: storageModelType GeoRedundant, crossRegionRestore true','Job 3f2a… (CrossRegionRestore) InProgress → Completed','Disks restored in Canada East, template generated for VM creation']});
+out:['Vault rsv-orrin: storageModelType GeoRedundant, crossRegionRestore true','Job 3f2a… (CrossRegionRestore) InProgress → Completed','Disks restored in Canada East, template generated for VM creation']});
 
 S({id:'backup-enhanced',mode:'complete',lang:'pwsh',domains:['monitor','compute'],tags:['backup-policy','vault'],file:'pol-4h.ps1',
 title:'Back up a VM every 4 hours (Enhanced policy)',
-scenario:'Kestrel Robotics’ build server changes all day. They want a VM backup <b>every 4 hours</b>.',
+scenario:'Brindlewick Robotics’ build server changes all day. They want a VM backup <b>every 4 hours</b>.',
 learn:[['Enhanced policy for VM backup',L+'azure/backup/backup-azure-vms-enhanced-policy']],
-code:String.raw`$vault = Get-AzRecoveryServicesVault -ResourceGroupName rg-kestrel-bk -Name rsv-kestrel
+code:String.raw`$vault = Get-AzRecoveryServicesVault -ResourceGroupName rg-brindle-bk -Name rsv-brindle
 
 $sch = Get-AzRecoveryServicesBackupSchedulePolicyObject -WorkloadType AzureVM ~
     -BackupManagementType AzureVM -PolicySubType {{1}} -ScheduleRunFrequency {{2}}
@@ -1001,18 +1001,18 @@ out:['Name    WorkloadType  PolicySubType  ScheduleRunFrequency','pol-4h  AzureV
 
 S({id:'file-recovery',mode:'complete',lang:'azcli',domains:['monitor'],tags:['file-recovery'],file:'restore-menu-db.sh',
 title:'Pull one file out of a VM backup',
-scenario:'Lumen Bakery’s point-of-sale VM <code>vm-pos-01</code> lost <code>menu.db</code>. Restore just that file from last night’s recovery point, without restoring the whole VM.',
+scenario:'Crumbhollow Bakery’s point-of-sale VM <code>vm-pos-01</code> lost <code>menu.db</code>. Restore just that file from last night’s recovery point, without restoring the whole VM.',
 learn:[['Restore files from a VM backup with CLI',L+'azure/backup/tutorial-restore-files'],['File recovery',L+'azure/backup/backup-azure-restore-files-from-vm']],
-code:String.raw`az backup recoverypoint list -g rg-bk --vault-name rsv-lumen \
+code:String.raw`az backup recoverypoint list -g rg-bk --vault-name rsv-crumb \
   --container-name vm-pos-01 --item-name vm-pos-01 \
   --backup-management-type AzureIaasVM -o table
 
-az backup restore files {{1}} -g rg-bk --vault-name rsv-lumen \
+az backup restore files {{1}} -g rg-bk --vault-name rsv-crumb \
   --container-name vm-pos-01 --item-name vm-pos-01 --rp-name "$RP"
 
 # Run the downloaded script {{2}}, copy menu.db from the mounted volume, then:
 
-az backup restore files {{3}} -g rg-bk --vault-name rsv-lumen \
+az backup restore files {{3}} -g rg-bk --vault-name rsv-crumb \
   --container-name vm-pos-01 --item-name vm-pos-01 --rp-name "$RP"`,
 b:[{a:'mount-rp',o:['download','restore-disks'],why:'<code>mount-rp</code> generates a script that mounts the recovery point’s disks as local volumes.',w:{'download':'Not a subcommand.','restore-disks':'Restores whole disks; overkill for one file.'}},
 {a:'on vm-pos-01 (or another machine with a compatible OS)',o:['in Azure Cloud Shell','inside the Recovery Services vault'],why:'The script mounts the recovery point over iSCSI on a machine whose OS can read the volumes. The same VM is the usual choice.',w:{'in Azure Cloud Shell':'Cloud Shell can’t mount iSCSI volumes.','inside the Recovery Services vault':'Vaults don’t run scripts.'}},
@@ -1022,36 +1022,36 @@ out:['Recovery point 2026-11-24 23:00 (AppConsistent)','Script vm-pos-01_…_ILR
 /* ═════════════ CROSS-DOMAIN ═════════════ */
 S({id:'branch-landing',mode:'complete',lang:'azcli',domains:['networking','identity','storage','compute','monitor'],tags:['lock','svc-endpoint','redundancy','vault','nsg'],file:'yyc-branch.sh',
 title:'Branch landing zone: all five domains in one script',
-scenario:'Kestrel Robotics opens a Calgary branch in <b>Canada Central</b>. The resource group must survive accidental deletion. The POS subnet sits inside the branch VNet and reaches storage privately via a service endpoint. Storage must survive a <b>zone</b> outage (no second region needed). The POS VM is backed up nightly.',
+scenario:'Brindlewick Robotics opens a Calgary branch in <b>Canada Central</b>. The resource group must survive accidental deletion. The POS subnet sits inside the branch VNet and reaches storage privately via a service endpoint. Storage must survive a <b>zone</b> outage (no second region needed). The POS VM is backed up nightly.',
 learn:[['Resource locks',L+'azure/azure-resource-manager/management/lock-resources'],['Storage redundancy',L+'azure/storage/common/storage-redundancy'],['Back up a VM with CLI',L+'azure/backup/quick-backup-vm-cli']],
-code:String.raw`az group create -n rg-kestrel-yyc -l canadacentral --tags CostCenter=4410
-az lock create -n no-delete -g rg-kestrel-yyc --lock-type {{1}}
+code:String.raw`az group create -n rg-brindle-yyc -l canadacentral --tags CostCenter=4410
+az lock create -n no-delete -g rg-brindle-yyc --lock-type {{1}}
 
-az network nsg create -g rg-kestrel-yyc -n nsg-shop
-az network vnet create -g rg-kestrel-yyc -n vnet-yyc --address-prefixes 10.60.0.0/16 \
+az network nsg create -g rg-brindle-yyc -n nsg-shop
+az network vnet create -g rg-brindle-yyc -n vnet-yyc --address-prefixes 10.60.0.0/16 \
   --subnet-name snet-shop --subnet-prefixes {{2}}
-az network vnet subnet update -g rg-kestrel-yyc --vnet-name vnet-yyc -n snet-shop \
+az network vnet subnet update -g rg-brindle-yyc --vnet-name vnet-yyc -n snet-shop \
   --network-security-group nsg-shop --service-endpoints Microsoft.Storage
 
-az storage account create -g rg-kestrel-yyc -n stkestrelyyc --sku {{3}} \
+az storage account create -g rg-brindle-yyc -n stbrindleyyc --sku {{3}} \
   --default-action Deny --kind StorageV2
 
-az vm create -g rg-kestrel-yyc -n vm-yyc-pos --image Win2022Datacenter --size Standard_B2ms \
+az vm create -g rg-brindle-yyc -n vm-yyc-pos --image Win2022Datacenter --size Standard_B2ms \
   --vnet-name vnet-yyc --subnet snet-shop --public-ip-address "" --nsg "" \
   --admin-username kadmin --admin-password "$PW"
 
-az backup protection enable-for-vm -g rg-kestrel-ops --vault-name {{4}} \
-  --vm "$(az vm show -g rg-kestrel-yyc -n vm-yyc-pos --query id -o tsv)" \
+az backup protection enable-for-vm -g rg-brindle-ops --vault-name {{4}} \
+  --vm "$(az vm show -g rg-brindle-yyc -n vm-yyc-pos --query id -o tsv)" \
   --policy-name DefaultPolicy`,
 b:[{a:'CanNotDelete',o:['ReadOnly'],t:'lock',why:'Delete protection that still lets the team build inside the group.',w:{'ReadOnly':'Every later command in this script would fail with ScopeLocked.'}},
 {a:'10.60.1.0/24',o:['10.61.1.0/24','10.60.0.0/16'],t:'nsg',why:'A subnet must fit inside the VNet’s address space (Azure keeps 5 addresses in each subnet).',w:{'10.61.1.0/24':'Outside 10.60.0.0/16.','10.60.0.0/16':'The whole VNet, leaving no room for other subnets.'}},
 {a:'Standard_ZRS',o:['Standard_LRS','Standard_GRS'],t:'redundancy',why:'<b>ZRS</b> = three zones in one region. Survives a zone outage without paying for a second region.',w:{'Standard_LRS':'One datacenter; a zone outage takes it down.','Standard_GRS':'LRS in the primary plus a second region; the brief didn’t ask for one.'}},
-{a:'rsv-kestrel-cc',o:['rsv-kestrel-ce'],t:'vault',why:'A Recovery Services vault must be in the <b>same region</b> as the VMs it protects (Canada Central).',w:{'rsv-kestrel-ce':'Canada East. Wrong region for a Canada Central VM.'}}],
-out:['rg-kestrel-yyc ✓  lock no-delete (CanNotDelete) ✓','vnet-yyc / snet-shop 10.60.1.0/24 · nsg-shop · Microsoft.Storage ✓','stkestrelyyc Standard_ZRS · defaultAction Deny ✓','vm-yyc-pos running · protected by rsv-kestrel-cc (DefaultPolicy) ✓']});
+{a:'rsv-brindle-cc',o:['rsv-brindle-ce'],t:'vault',why:'A Recovery Services vault must be in the <b>same region</b> as the VMs it protects (Canada Central).',w:{'rsv-brindle-ce':'Canada East. Wrong region for a Canada Central VM.'}}],
+out:['rg-brindle-yyc ✓  lock no-delete (CanNotDelete) ✓','vnet-yyc / snet-shop 10.60.1.0/24 · nsg-shop · Microsoft.Storage ✓','stbrindleyyc Standard_ZRS · defaultAction Deny ✓','vm-yyc-pos running · protected by rsv-brindle-cc (DefaultPolicy) ✓']});
 
 S({id:'ir-isolate',mode:'fix',lang:'pwsh',domains:['networking','compute','identity'],tags:['nsg','snapshot','rbac'],file:'ir-emr02.ps1',
 title:'Fix it: incident response script locked out the SOC',
-scenario:'Harborline suspects <code>vm-emr-02</code> is compromised. The IR script must (1) block all inbound traffic <b>except SSH from the SOC jump box 10.0.9.4</b>, (2) snapshot the OS disk for evidence, and (3) remove a contractor’s VM role on that VM.',
+scenario:'Harrowfen suspects <code>vm-emr-02</code> is compromised. The IR script must (1) block all inbound traffic <b>except SSH from the SOC jump box 10.0.9.4</b>, (2) snapshot the OS disk for evidence, and (3) remove a contractor’s VM role on that VM.',
 symptom:'SOC jump box can’t SSH to vm-emr-02, and the portal still shows the old rules on nsg-nic-emr02.',
 learn:[['NSG rule priority',L+'azure/virtual-network/network-security-groups-overview#security-rules'],['Snapshot with PowerShell',L+'azure/virtual-machines/snapshot-copy-managed-disk?tabs=powershell']],
 code:String.raw`$nsg = Get-AzNetworkSecurityGroup -Name nsg-nic-emr02 -ResourceGroupName rg-harbor-emr
@@ -1068,7 +1068,7 @@ $cfg = New-AzSnapshotConfig -SourceUri $vm.StorageProfile.OsDisk.ManagedDisk.Id 
     -Location $vm.Location -CreateOption {{4}}
 New-AzSnapshot -ResourceGroupName rg-harbor-ir -SnapshotName snap-emr02-ir -Snapshot $cfg
 
-Remove-AzRoleAssignment -SignInName "contractor@harborline.example" ~
+Remove-AzRoleAssignment -SignInName "contractor@harrowfen.example" ~
     -RoleDefinitionName "Virtual Machine Contributor" -Scope {{5}}`,
 b:[{a:'4000',bug:'100',o:['4097'],t:'nsg',why:'The deny must be evaluated <b>after</b> the SOC allow. Lower number wins.',w:{'100':'Evaluated before allow-soc (200), so the SOC is blocked too.','4097':'Out of range (100–4096).'}},
 {a:'200',o:['4096'],t:'nsg',why:'Lower than the deny, so it’s checked first. (This line was already right.)',w:{'4096':'After the deny at 4000; it would never match.'}},
@@ -1079,17 +1079,17 @@ out:['nsg-nic-emr02: allow-soc (200) ✓ · deny-all-in (4000) ✓ · saved','Sn
 
 S({id:'web-bicep',mode:'complete',lang:'bicep',domains:['compute','networking','monitor'],tags:['bicep','app-service','diag'],file:'intake-web.bicep',
 title:'Bicep: Linux web app with VNet integration and logs',
-scenario:'Orchard &amp; Pike’s intake app runs on <b>Linux</b>, needs <b>deployment slots and VNet integration</b> at the lowest tier with both, and sends HTTP logs to Log Analytics.',
+scenario:'Orrin &amp; Pell’s intake app runs on <b>Linux</b>, needs <b>deployment slots and VNet integration</b> at the lowest tier with both, and sends HTTP logs to Log Analytics.',
 learn:[['App Service plans',L+'azure/app-service/overview-hosting-plans'],['VNet integration',L+'azure/app-service/overview-vnet-integration'],['Diagnostic settings in Bicep',L+'azure/azure-monitor/essentials/resource-manager-diagnostic-settings']],
 code:String.raw`param location string = resourceGroup().location
 param lawId string
 
 resource snet 'Microsoft.Network/virtualNetworks/subnets@2024-01-01' existing = {
-  name: 'vnet-orchard/snet-appsvc'
+  name: 'vnet-orrin/snet-appsvc'
 }
 
 resource plan 'Microsoft.Web/serverfarms@2023-12-01' = {
-  name: 'asp-orchard'
+  name: 'asp-orrin'
   location: location
   sku: { name: {{1}} }
   kind: 'linux'
@@ -1097,7 +1097,7 @@ resource plan 'Microsoft.Web/serverfarms@2023-12-01' = {
 }
 
 resource app 'Microsoft.Web/sites@2023-12-01' = {
-  name: 'app-orchard-intake'
+  name: 'app-orrin-intake'
   location: location
   properties: {
     serverFarmId: {{3}}
@@ -1116,17 +1116,17 @@ resource diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
 }`,
 b:[{a:`'S1'`,o:[`'B1'`,`'F1'`,`'P1v3'`],t:'app-service',why:'VNet integration starts at Basic; slots start at <b>Standard</b>. The lowest tier with both is S1.',w:{[`'B1'`]:'Basic has VNet integration but no slots.',[`'F1'`]:'Free has neither.',[`'P1v3'`]:'Has both, but isn’t the lowest.'}},
 {a:'true',o:['false'],t:'app-service',why:'Linux plans need <code>reserved: true</code>.',w:{'false':'false means a Windows plan.'}},
-{a:'plan.id',o:['plan.name',`'asp-orchard'`],t:'bicep',why:'A symbolic reference (<code>plan.id</code>) gives the resource ID <b>and</b> an implicit dependency.',w:{'plan.name':'serverFarmId expects the resource ID.',[`'asp-orchard'`]:'A plain string: no ID, and no dependency.'}},
+{a:'plan.id',o:['plan.name',`'asp-orrin'`],t:'bicep',why:'A symbolic reference (<code>plan.id</code>) gives the resource ID <b>and</b> an implicit dependency.',w:{'plan.name':'serverFarmId expects the resource ID.',[`'asp-orrin'`]:'A plain string: no ID, and no dependency.'}},
 {a:'app',o:['plan','resourceGroup()'],t:'diag',why:'Diagnostic settings are an extension resource scoped to the thing being monitored.',w:{'plan':'Plans don’t emit AppServiceHTTPLogs.','resourceGroup()':'Resource groups don’t take diagnostic settings.'}}],
-out:['Resource changes: 3 to create','+ asp-orchard (S1, linux)  + app-orchard-intake (vnet: snet-appsvc)  + app-to-law','Deployment succeeded']});
+out:['Resource changes: 3 to create','+ asp-orrin (S1, linux)  + app-orrin-intake (vnet: snet-appsvc)  + app-to-law','Deployment succeeded']});
 
 S({id:'mi-blob',mode:'fix',lang:'azcli',domains:['identity','storage','compute'],tags:['mi','rbac'],file:'notebook-access.sh',
 title:'Fix it: the notebook VM can see the account but not the data',
-scenario:'Saltmarsh Labs’ notebook VM reads genomes from the <code>genomes</code> container using its <b>managed identity</b>. Shared-key access is disabled on the account. Read-only is enough.',
+scenario:'Saltquill Labs’ notebook VM reads genomes from the <code>genomes</code> container using its <b>managed identity</b>. Shared-key access is disabled on the account. Read-only is enough.',
 symptom:'(AuthorizationPermissionMismatch) This request is not authorized to perform this operation using this permission.\nWith --auth-mode key: "Key based authentication is not permitted on this storage account."',
 learn:[['Configure managed identities on a VM',L+'entra/identity/managed-identities-azure-resources/qs-configure-cli-windows-vm'],['Authorize blob access with Azure CLI',L+'azure/storage/blobs/authorize-data-operations-cli']],
-code:String.raw`az vm identity assign -g rg-saltmarsh -n vm-notebook-01
-PRINCIPAL=$(az vm show -g rg-saltmarsh -n vm-notebook-01 --query {{1}} -o tsv)
+code:String.raw`az vm identity assign -g rg-saltquill -n vm-notebook-01
+PRINCIPAL=$(az vm show -g rg-saltquill -n vm-notebook-01 --query {{1}} -o tsv)
 
 az role assignment create --assignee-object-id "$PRINCIPAL" \
   --assignee-principal-type ServicePrincipal \
@@ -1135,7 +1135,7 @@ az role assignment create --assignee-object-id "$PRINCIPAL" \
 
 # on the VM:
 az login --identity
-az storage blob download --account-name stsaltmarshlake -c genomes -n run-118.fastq \
+az storage blob download --account-name stsaltquilllake -c genomes -n run-118.fastq \
   -f ./run-118.fastq {{3}}`,
 b:[{a:'identity.principalId',o:['identity.tenantId','vmId'],t:'mi',why:'The managed identity’s object ID. (This line was already right.)',w:{'identity.tenantId':'That’s the tenant, not the identity.','vmId':'The VM’s own unique ID, not an Entra principal.'}},
 {a:'"Storage Blob Data Reader"',bug:'"Storage Account Contributor"',o:['"Reader"'],t:'rbac',why:'Reading blob <b>data</b> with Entra auth needs a <b>data-plane</b> role. Management roles don’t grant it.',w:{'"Storage Account Contributor"':'Manages the account (and can read keys), but with shared keys disabled it grants no data access.','"Reader"':'Sees the account in the portal; no data access.'}},
