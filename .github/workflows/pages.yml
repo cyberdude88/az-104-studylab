@@ -23,8 +23,8 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir dist
-          cp index.html app.js benchmark.html benchmark.js bench-core.js script.html script.js sync.js dist/
-          cp -r benchmarks scripts dist/
+          cp index.html app.js benchmark.html benchmark.js bench-core.js script.html script.js sync.js practice.html practice.js dist/
+          cp -r benchmarks scripts practice dist/
           touch dist/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5

@@ -1,6 +1,6 @@
 # Google Sheet progress sync
 
-Two-way sync between the StudyLab pages (Complete the Script and the NOV25 board) and your readiness Google Sheet. The site is static, so the bridge is a small Apps Script web app that lives **inside your own Sheet**. Nothing is hosted anywhere else.
+Two-way sync between the StudyLab pages (Practice Test, Complete the Script and the NOV25 board) and your readiness Google Sheet. The site is static, so the bridge is a small Apps Script web app that lives **inside your own Sheet**. Nothing is hosted anywhere else.
 
 ## Set up (about 5 minutes, once)
 
@@ -19,6 +19,7 @@ Repeat step 6 on each browser or device; progress merges. After you edit `Code.g
 |---|---|---|
 | `Lab_Runs` | One row per finished run: time, game, item, mode, language, domains, concepts, blanks, misses, clean, XP, level after, next due, what you missed, first-try score %. Practice-exam retakes logged on the NOV25 board are added here too. One `baseline` row carries XP earned before you connected | Append-only from the site |
 | `Lab_Status` | One row per script or mission: level, status, runs, clean runs, misses, last played, next due | The site (newest `Last played` wins) |
+| `Lab_Competency` | Practice Test estimate per objective: estimate, band, questions, θ, information, last practised. The newest update wins across devices, and the Practice Test estimate also appears on `Lab_Dashboard` | The site |
 | `Lab_Concepts` | Concept heat: base weight, misses, hits, heat, **Your priority** | You edit **Your priority** |
 | `Lab_Dashboard` | Formulas: runs, clean rate, XP, days practised, mastered counts, per-domain table, hottest concepts, recent runs | Rebuilt by `setup` |
 

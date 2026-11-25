@@ -7,20 +7,22 @@
  * sync token, which is kept in Script Properties and never written to the Sheet.
  *
  * Tabs created: Lab_Runs (append-only log), Lab_Status (one row per mission/script),
- * Lab_Concepts (concept heat; edit "Your priority" to steer the game), Lab_Dashboard (formulas).
+ * Lab_Concepts (concept heat; edit "Your priority" to steer the game), Lab_Competency (Practice Test
+ * estimate per objective), Lab_Dashboard (formulas).
  * Existing tabs are never modified.
  *
  * @OnlyCurrentDoc
  */
 
 const TABS = {
-  runs: { name: 'Lab_Runs', head: ['Timestamp', 'Date', 'Game', 'Item ID', 'Title', 'Mode', 'Language', 'Primary domain', 'Domains', 'Concepts', 'Blanks', 'Misses', 'Clean', 'XP', 'Level after', 'Next due', 'Missed picks', 'Score %', 'Run ID', 'Game ID'] },
+  runs: { name: 'Lab_Runs', head: ['Timestamp', 'Date', 'Game', 'Item ID', 'Title', 'Mode', 'Language', 'Primary domain', 'Domains', 'Concepts', 'Blanks', 'Misses', 'Clean', 'XP', 'Level after', 'Next due', 'Missed picks', 'Score %', 'Run ID', 'Game ID', 'Estimate'] },
   status: { name: 'Lab_Status', head: ['Game', 'Item ID', 'Title', 'Primary domain', 'Mode', 'Language', 'Level', 'Status', 'Runs', 'Clean runs', 'Total misses', 'Last played', 'Next due', 'Updated', 'Game ID'] },
+  competency: { name: 'Lab_Competency', head: ['Objective ID', 'Objective', 'Domain', 'Estimate', 'Band ±', 'Questions', 'Theta', 'Info', 'Last practised', 'Updated'] },
   concepts: { name: 'Lab_Concepts', head: ['Concept ID', 'Concept', 'Source', 'Base weight', 'Misses', 'Hits', 'Heat', 'Your priority', 'Updated'] },
   dash: { name: 'Lab_Dashboard' }
 };
 const PRIORITIES = ['High', 'Medium', 'Normal', 'Low', 'Ignore'];
-const GAMES = { cts: 'Complete the Script', nov25: 'NOV25 Benchmark' };
+const GAMES = { cts: 'Complete the Script', nov25: 'NOV25 Benchmark', pt: 'Practice Test' };
 const MAX_ITEMS = 300;
 const ID_RE = /^[a-z0-9][a-z0-9-]{0,47}$/;
 
@@ -60,7 +62,7 @@ function token_() {
 }
 
 function ensureTabs_(ss) {
-  ['runs', 'status', 'concepts'].forEach(k => {
+  ['runs', 'status', 'concepts', 'competency'].forEach(k => {
     const def = TABS[k];
     let sh = ss.getSheetByName(def.name);
     if (!sh) sh = ss.insertSheet(def.name);
@@ -101,25 +103,27 @@ function buildDashboard_(ss) {
     ['Days practised', '=IFERROR(COUNTUNIQUE(FILTER(' + R + 'B2:B,' + R + 'F2:F<>"baseline",' + R + 'B2:B<>"")),0)'],
     ['Complete the Script mastered', '=COUNTIFS(Lab_Status!O2:O,"cts",Lab_Status!H2:H,"Mastered")&" / 54"'],
     ['NOV25 missions mastered', '=COUNTIFS(Lab_Status!O2:O,"nov25",Lab_Status!H2:H,"Mastered")&" / 28"'],
+    ['Practice Test estimate (latest session)', '=IFERROR(INDEX(FILTER(' + R + 'U2:U,' + R + 'T2:T="pt",' + R + 'U2:U<>""),COUNTIFS(' + R + 'T2:T,"pt",' + R + 'U2:U,"<>")),"No sessions yet")'],
     ['Last run', '=IFERROR(MAX(' + R + 'A2:A),"")']
   ];
   sh.getRange(1, 1, rows.length, 2).setValues(rows);
   sh.getRange('A1').setFontSize(14).setFontWeight('bold');
   sh.getRange('A2').setFontColor('#5b6672');
   sh.getRange('B6').setNumberFormat('0%');
-  sh.getRange('B11').setNumberFormat('yyyy-mm-dd hh:mm');
+  sh.getRange('B12').setNumberFormat('yyyy-mm-dd hh:mm');
 
   const domains = ['Identity & governance', 'Storage', 'Compute', 'Networking', 'Monitor & maintain'];
-  sh.getRange('A13:F13').setValues([['Domain', 'Script runs', 'Script clean %', 'NOV25 runs', 'NOV25 clean %', 'Misses (all)']]).setFontWeight('bold').setBackground('#e8f1fb');
+  sh.getRange('A13:G13').setValues([['Domain', 'Script runs', 'Script clean %', 'NOV25 runs', 'NOV25 clean %', 'Misses (all)', 'Practice estimate']]).setFontWeight('bold').setBackground('#e8f1fb');
   domains.forEach((d, i) => {
     const r = 14 + i, a = 'A' + r;
-    sh.getRange(r, 1, 1, 6).setFormulas([[
+    sh.getRange(r, 1, 1, 7).setFormulas([[
       '="' + d + '"',
       '=COUNTIFS(' + R + 'T2:T,"cts",' + R + 'H2:H,' + a + ',' + notMeta + ')',
       '=IFERROR(COUNTIFS(' + R + 'T2:T,"cts",' + R + 'H2:H,' + a + ',' + R + 'M2:M,TRUE)/B' + r + ',"")',
       '=COUNTIFS(' + R + 'T2:T,"nov25",' + R + 'H2:H,' + a + ',' + notMeta + ')',
       '=IFERROR(COUNTIFS(' + R + 'T2:T,"nov25",' + R + 'H2:H,' + a + ',' + R + 'M2:M,TRUE)/D' + r + ',"")',
-      '=SUMIFS(' + R + 'L2:L,' + R + 'H2:H,' + a + ')'
+      '=SUMIFS(' + R + 'L2:L,' + R + 'H2:H,' + a + ')',
+      '=IFERROR(ROUND(AVERAGEIFS(Lab_Competency!D2:D,Lab_Competency!C2:C,' + a + ')),"")'
     ]]);
   });
   sh.getRange('C14:C18').setNumberFormat('0%');
@@ -150,10 +154,11 @@ function doPost(e) {
     locked = lock.tryLock(20000);
     if (!locked) return json_({ ok: false, error: 'busy, try again' });
     const ss = SpreadsheetApp.getActive();
-    if (!ss.getSheetByName(TABS.runs.name) || !ss.getSheetByName(TABS.dash.name)) { ensureTabs_(ss); buildDashboard_(ss); }
+    if (!ss.getSheetByName(TABS.runs.name) || !ss.getSheetByName(TABS.competency.name) || !ss.getSheetByName(TABS.dash.name)) { ensureTabs_(ss); buildDashboard_(ss); }
     const added = appendRuns_(ss, list_(body.runs));
     upsertStatus_(ss, list_(body.status));
     upsertConcepts_(ss, list_(body.concepts));
+    upsertCompetency_(ss, list_(body.competency));
     const out = pull_(ss);
     out.ok = true; out.added = added;
     return json_(out);
@@ -179,7 +184,8 @@ function appendRuns_(ss, runs) {
       isNaN(ts) ? new Date() : ts, day_(r.date), GAMES[gid], id, str_(r.title, 160), str_(r.mode, 24), str_(r.lang, 24),
       str_(r.domain, 40), str_(r.domains, 160), str_(r.concepts, 240), num_(r.blanks, 0, 99), num_(r.misses, 0, 999),
       r.clean === true, num_(r.xp, 0, 1000000), num_(r.level, 0, 9), day_(r.due), str_(r.missed, 600),
-      (r.score === null || r.score === undefined || r.score === '') ? '' : num_(r.score, 0, 100), rid, gid
+      (r.score === null || r.score === undefined || r.score === '') ? '' : num_(r.score, 0, 100), rid, gid,
+      (r.est === null || r.est === undefined || r.est === '') ? '' : num_(r.est, 0, 1000)
     ]);
   });
   if (rows.length) sh.getRange(last + 1, 1, rows.length, W).setValues(rows);
@@ -242,9 +248,31 @@ function upsertConcepts_(ss, items) {
   if (data.length) sh.getRange(2, 1, data.length, W).setValues(data);
 }
 
+function upsertCompetency_(ss, items) {
+  if (!items.length) return;
+  const sh = ss.getSheetByName(TABS.competency.name), W = TABS.competency.head.length, last = sh.getLastRow();
+  const data = last > 1 ? sh.getRange(2, 1, last - 1, W).getValues() : [];
+  const idx = {};
+  data.forEach((r, i) => { idx[r[0]] = i; });
+  items.forEach(c => {
+    const id = String(c.id || '');
+    if (!ID_RE.test(id)) return;
+    const at = /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(String(c.at || '')) ? String(c.at) : '';
+    const th = Math.max(-4, Math.min(4, Number(c.th) || 0)), info = Math.max(0, Math.min(50, Number(c.info) || 0));
+    const row = [id, str_(c.name, 120), str_(c.domain, 40), num_(c.scaled, 0, 1000), num_(c.band, 0, 1000), num_(c.n, 0, 1000000),
+      Math.round(th * 1000) / 1000, Math.round(info * 1000) / 1000, day_(c.last), at];
+    if (id in idx) {
+      const r = data[idx[id]], prev = String(r[9] || '');
+      if (!prev || (at && at > prev)) data[idx[id]] = row;
+      else { r[1] = row[1]; r[2] = row[2]; }
+    } else { idx[id] = data.length; data.push(row); }
+  });
+  if (data.length) sh.getRange(2, 1, data.length, W).setValues(data);
+}
+
 /* ───────── reader ───────── */
 function pull_(ss) {
-  const out = { status: [], concepts: [], totals: {}, retakes: [] };
+  const out = { status: [], concepts: [], totals: {}, retakes: [], competency: [] };
   const st = ss.getSheetByName(TABS.status.name);
   if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, TABS.status.head.length).getValues().forEach(r => {
     if (!game_(r[14])) return;
@@ -253,6 +281,11 @@ function pull_(ss) {
   const c = ss.getSheetByName(TABS.concepts.name);
   if (c.getLastRow() > 1) c.getRange(2, 1, c.getLastRow() - 1, TABS.concepts.head.length).getValues().forEach(r => {
     out.concepts.push({ id: String(r[0]), misses: +r[4] || 0, hits: +r[5] || 0, priority: PRIORITIES.indexOf(r[7]) >= 0 ? r[7] : 'Normal' });
+  });
+  const cp = ss.getSheetByName(TABS.competency.name);
+  if (cp && cp.getLastRow() > 1) cp.getRange(2, 1, cp.getLastRow() - 1, TABS.competency.head.length).getValues().forEach(r => {
+    if (!r[0] || !r[9]) return;
+    out.competency.push({ id: String(r[0]), th: +r[6] || 0, info: +r[7] || 0, n: +r[5] || 0, last: dayOut_(ss, r[8]), at: String(r[9]) });
   });
   const ru = ss.getSheetByName(TABS.runs.name);
   if (ru.getLastRow() > 1) {

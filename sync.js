@@ -64,6 +64,13 @@
     });
   }
 
+  function competencyRows(){
+    const P=window.PT,M=window.PTModel;if(!P||!M)return [];
+    const st=M.load();
+    return Object.entries(P.objectives).map(([id,o])=>{const x=st.obj[id],sc=M.objScore(st,id);
+      return {id,name:o.name,domain:P.domains[o.d].name,scaled:sc.score,band:sc.band,n:x.n,th:Math.round(x.th*1000)/1000,info:Math.round(x.I*1000)/1000,last:x.last||'',at:x.at||''}});
+  }
+
   /* ───────── merge what the Sheet returns ───────── */
   function merge(res){
     const known=benches(),changed=new Set();
@@ -99,6 +106,11 @@
       }
       if(dirty){C.save(g,s);changed.add(g)}
     });
+    if((res.competency||[]).length){
+      const s=C.load('pt');s.obj=s.obj||{};let dirty=false;
+      res.competency.forEach(x=>{const l=s.obj[x.id];if(x.at&&(!l||!l.at||x.at>l.at)){s.obj[x.id]={th:x.th,I:Math.max(1.2,x.info),n:x.n,last:x.last||null,at:x.at};dirty=true}});
+      if(dirty){C.save('pt',s);changed.add('pt')}
+    }
     return changed;
   }
 
@@ -121,7 +133,7 @@
     busy=(async()=>{
       try{
         const sent=c.pending.slice(0,150);
-        const res=await post(c,{action:'sync',runs:sent,status:statusRows(),concepts:conceptRows()});
+        const res=await post(c,{action:'sync',runs:sent,status:statusRows(),concepts:conceptRows(),competency:competencyRows()});
         const now=cfg();const ids=new Set(sent.map(r=>r.runId));now.pending=now.pending.filter(r=>!ids.has(r.runId));
         const changed=merge(res);
         /* first contact: carry XP earned before syncing as one baseline row per game */
