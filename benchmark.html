@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071427">
+  <title>NOV25 Benchmark · AZ-104 StudyLab</title>
+  <style>
+    :root{color-scheme:dark;--bg:#071427;--panel:#102b4d;--line:#365f91;--text:#f0f6ff;--muted:#adc1de;--blue:#2777ff;--green:#27d99b;--red:#ff7181;--gold:#ffcb5b;--violet:#b99cff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 7% 3%,#23568e 0,transparent 31rem),linear-gradient(145deg,#071427,#0c2545 60%,#071427);color:var(--text);font:16px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{width:min(1320px,calc(100% - 2rem));margin:auto;padding:1.4rem 0 3rem}a{color:#9cc5ff;text-underline-offset:3px}button{font:inherit}.hidden{display:none!important}code{font:600 .86em ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(3,14,29,.55);padding:.05rem .3rem;border-radius:.3rem;color:#d8e8ff}
+    .eyebrow{margin:0 0 .35rem;color:#8abbff;font-weight:850;letter-spacing:.13em;font-size:.75rem;text-transform:uppercase}.eyebrow a{color:inherit;text-decoration:none}.eyebrow a:hover{text-decoration:underline}
+    h1{font-size:clamp(2rem,4.4vw,3.4rem);line-height:.98;letter-spacing:-.05em;margin:0}h2{margin:0 0 .5rem;font-size:1.12rem}h3{margin:0 0 .4rem;font-size:.98rem}
+    .lead{max-width:46rem;color:var(--muted);line-height:1.5;margin:.6rem 0 0}.brand{display:flex;justify-content:space-between;gap:1.2rem;align-items:flex-end;margin-bottom:1.2rem;flex-wrap:wrap}
+    .chips{display:flex;gap:.55rem;flex-wrap:wrap}.chip{min-width:6.4rem;padding:.55rem .8rem;background:#0c2545;border:1px solid var(--line);border-radius:.85rem;text-align:center}.chip strong{display:block;font-size:1.3rem;line-height:1.1}.chip span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}.chip.g strong{color:var(--green)}.chip.r strong{color:var(--red)}.chip.y strong{color:var(--gold)}.chip.v strong{color:var(--violet)}
+    .panel{background:rgba(10,32,59,.94);border:1px solid #315783;border-radius:1rem;padding:1.05rem;box-shadow:0 1.2rem 2.5rem rgba(0,0,0,.16)}
+    .help{margin:0 0 .9rem;color:var(--muted);font-size:.9rem;line-height:1.45}
+    .top{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem}
+    .go{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:1rem 1.1rem;border-radius:1rem;border:1px solid #4f86c9;background:linear-gradient(110deg,rgba(39,119,255,.28),rgba(16,43,77,.92));margin-bottom:1rem}
+    .go b{font-size:1.15rem}.go small{display:block;color:var(--muted);margin-top:.2rem}
+    .action{border:0;border-radius:.65rem;padding:.7rem 1rem;background:var(--blue);color:#fff;font-weight:850;cursor:pointer;text-decoration:none;display:inline-block}.action:hover{filter:brightness(1.12)}.action.alt{background:#234a78}.action.ghost{background:transparent;border:1px solid #4a74a8;color:#cfe2ff}.action.big{padding:.85rem 1.25rem;font-size:1.02rem}
+    .queue{list-style:none;margin:0;padding:0;display:grid;gap:.45rem}.queue li{display:flex;gap:.6rem;align-items:center;justify-content:space-between;padding:.5rem .65rem;border:1px solid #2f5683;border-radius:.65rem;background:#0b2342}.queue li button{flex:1;text-align:left;background:none;border:0;color:var(--text);cursor:pointer;font-weight:750;padding:0}.queue li button:hover{color:#bcd8ff}
+    .scoreline{display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap;margin-bottom:.8rem}.big-score{font-size:2.6rem;font-weight:900;letter-spacing:-.04em;color:var(--red);line-height:1}.scoreline span{color:var(--muted);font-size:.88rem}
+    .dbar{display:grid;grid-template-columns:9.5rem 1fr 3rem;gap:.6rem;align-items:center;margin:.35rem 0;font-size:.86rem}.dbar .track{position:relative;height:.62rem;background:#163558;border-radius:1rem;overflow:visible}.dbar .fill{height:100%;border-radius:1rem}.dbar .prior{position:absolute;top:-.25rem;width:2px;height:1.12rem;background:#e8f1ff;opacity:.75}.dbar b{text-align:right}
+    .legend{font-size:.76rem;color:var(--muted);margin-top:.4rem}.legend i{display:inline-block;width:2px;height:.8rem;background:#e8f1ff;vertical-align:middle;margin:0 .3rem 0 .1rem}
+    .trend{display:flex;gap:.5rem;align-items:flex-end;height:5.2rem;margin:.4rem 0 .2rem}.trend div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:.2rem;font-size:.7rem;color:var(--muted);text-align:center;height:100%}.trend .bar{width:70%;max-width:3.2rem;border-radius:.35rem .35rem 0 0;background:#2f6fbf}.trend .bar.now{background:var(--red)}.trend .bar.retake{background:var(--green)}.trend strong{color:var(--text);font-size:.8rem}
+    .insights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-bottom:1.2rem}.insights ul{margin:0;padding-left:1.05rem;font-size:.88rem;line-height:1.45}.insights li{margin:.35rem 0}.insights li b{color:#e6f0ff}.insights .muted{color:var(--muted)}
+    .ins-recur h2{color:#ffb3bd}.ins-up h2{color:#9ff0d0}.ins-pat h2{color:var(--gold)}
+    .domain-block{margin:1.2rem 0 .6rem}.domain-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:.55rem}.domain-head span{color:var(--muted);font-size:.85rem}
+    .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.7rem}
+    .mcard{position:relative;text-align:left;padding:.85rem .9rem .8rem;border-radius:.9rem;border:1px solid var(--line);background:linear-gradient(130deg,#14375f,#0d294b);color:var(--text);cursor:pointer;transition:.15s;min-height:7.4rem;display:flex;flex-direction:column;gap:.35rem}.mcard:hover,.mcard:focus-visible{transform:translateY(-2px);border-color:#83b6ff;outline:none}
+    .mcard b{font-size:.98rem;line-height:1.25}.mcard .meta{display:flex;justify-content:space-between;align-items:center;margin-top:auto;font-size:.74rem;color:var(--muted)}
+    .pill{display:inline-block;font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;padding:.14rem .45rem;border-radius:.4rem;margin-right:.25rem}.pill.new{background:#24466f;color:#bcd6ff}.pill.due{background:#5a2c08;color:#ffd08a}.pill.learning{background:#173f63;color:#9fd0ff}.pill.mastered{background:#0d4a37;color:#9ff0d0}.pill.recur{background:#5b1f2b;color:#ffb3bd}.pill.regress{background:#4a2a66;color:#dcc8ff}.pill.disputed{background:#3d3a12;color:#f4e48a}
+    .mcard.st-mastered{border-color:#1d9b71;background:linear-gradient(130deg,#0f3f3a,#0c2d3f)}.mcard.st-due{border-color:#c98a2e}
+    .pips{display:inline-flex;gap:.2rem}.pips i{width:.55rem;height:.55rem;border-radius:50%;background:#294d75}.pips i.on{background:var(--green)}
+    .tools{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-top:1.4rem;padding-top:1rem;border-top:1px solid #23466f}.tools label{font-size:.85rem;color:var(--muted)}.tools input[type=number]{width:5.2rem;padding:.55rem;border-radius:.55rem;border:1px solid #3b6497;background:#0b2342;color:var(--text);font:inherit}
+    .note{font-size:.8rem;color:var(--muted);margin-top:.6rem}
+    /* play view */
+    .back{border:0;background:transparent;color:#a8caff;font-weight:800;cursor:pointer;padding:0 0 .6rem}
+    .brief{background:linear-gradient(110deg,rgba(39,119,255,.18),rgba(16,43,77,.9));border:1px solid #426fa8;border-radius:1rem;padding:.8rem 1rem;line-height:1.5;margin-bottom:.7rem;font-size:.95rem}.brief b{color:var(--gold)}
+    .history{border:1px solid #7b3443;background:rgba(91,31,43,.35);border-radius:.8rem;padding:.6rem .85rem;font-size:.86rem;color:#ffd5da;margin-bottom:.7rem}.history.regress{border-color:#6a4b93;background:rgba(74,42,102,.35);color:#e6dbff}
+    .playhead{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.5rem}.playhead h2{font-size:1.35rem;margin:0}
+    .workbench{display:grid;grid-template-columns:minmax(250px,340px) minmax(0,1fr);gap:1rem;align-items:start}
+    .cards{display:grid;gap:.5rem}.card{width:100%;cursor:grab;padding:.7rem .75rem;border:1px solid #5683b7;border-radius:.7rem;background:linear-gradient(125deg,#19436f,#102f55);color:var(--text);text-align:left;font-weight:750;font-size:.9rem;line-height:1.35;transition:.15s;touch-action:manipulation}.card:hover,.card:focus-visible{border-color:#9ac4ff;transform:translateY(-2px);outline:none}.card.selected{outline:3px solid var(--gold);outline-offset:2px}.card.dragging{opacity:.5}
+    .empty{padding:.8rem;border:1px dashed #446c98;border-radius:.7rem;color:var(--muted);font-size:.88rem}
+    .table-wrap{overflow-x:auto;border:1px solid #315783;border-radius:.8rem}.answer-table{width:100%;border-collapse:collapse;min-width:520px}.answer-table th,.answer-table td{padding:.6rem .7rem;text-align:left;border-bottom:1px solid #2b4b6d;vertical-align:top}.answer-table thead th{background:#0c2545;color:#a8caff;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}.answer-table tr:last-child td,.answer-table tr:last-child th{border-bottom:0}
+    .step{color:#d6e6ff;font-weight:850;width:34%}.step small{display:block;color:var(--muted);font-weight:500;font-size:.8rem;margin-top:.15rem}.step code{font-size:.82em}
+    .dropzone{min-height:3rem;padding:.5rem .6rem;border:2px dashed #446c98;border-radius:.6rem;background:rgba(3,14,29,.3);color:var(--muted);font-size:.86rem;transition:.15s;cursor:pointer;width:100%;text-align:left;display:block}.dropzone:focus-visible{outline:2px solid #9ac4ff;outline-offset:2px}.dropzone.over{border-color:#9ac4ff;background:#173e6c}.dropzone.has{border-style:solid;border-color:#1d9b71;background:rgba(24,145,103,.18);color:#c7ffeb}.dropzone.wrong{border-color:var(--red);animation:shake .24s linear}
+    .placed{font-weight:800;padding:.1rem 0}.placed+.placed{border-top:1px solid rgba(29,155,113,.35);margin-top:.25rem;padding-top:.3rem}.hint{color:var(--muted);font-size:.8rem}
+    .feedback{margin:0 0 .7rem;min-height:3rem;padding:.7rem .85rem;border-radius:.75rem;background:#081a31;color:var(--muted);line-height:1.45;font-size:.92rem;position:sticky;top:.5rem;z-index:3;border:1px solid #2b4b6d;box-shadow:0 .6rem 1.2rem rgba(3,10,22,.55)}.feedback.good{border-left:4px solid var(--green);color:#c5fce7}.feedback.bad{border-left:4px solid var(--red);color:#ffd5da}
+    .status{display:flex;gap:.6rem;align-items:center;margin-bottom:.7rem;padding:.55rem .7rem;border:1px solid #315783;border-radius:.75rem;background:#0c2545;flex-wrap:wrap}.status .s{display:flex;align-items:baseline;gap:.3rem;padding:.3rem .6rem;border-radius:.5rem;background:#153a66}.status .s strong{font-size:1.1rem;color:var(--gold)}.status .s span{font-size:.74rem;color:var(--muted)}.status progress{flex:1;min-width:120px;height:.55rem;accent-color:var(--green)}
+    .complete{margin-top:.8rem;padding:1rem;border:1px solid var(--green);border-radius:.8rem;background:linear-gradient(100deg,rgba(39,217,155,.17),rgba(39,119,255,.14));line-height:1.5}.complete.miss{border-color:var(--gold);background:linear-gradient(100deg,rgba(255,203,91,.13),rgba(39,119,255,.12))}.complete .actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.7rem}
+    .src{font-size:.78rem;color:var(--muted)}
+    @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+    @media(min-width:900px){.workbench>.panel:first-child{position:sticky;top:.75rem;max-height:calc(100vh - 1.5rem);overflow-y:auto;scrollbar-width:thin}}
+    @media(max-width:980px){.insights{grid-template-columns:1fr}.top{grid-template-columns:1fr}}
+    @media(max-width:760px){main{width:calc(100% - 1rem)}.workbench{grid-template-columns:1fr}.dbar{grid-template-columns:7rem 1fr 2.6rem}.answer-table{min-width:0}.step{width:40%}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="brand">
+    <div><p class="eyebrow"><a href="./">AZ-104 StudyLab</a> · Benchmark recovery</p><h1 id="title">NOV25 Benchmark</h1><p class="lead" id="lead"></p></div>
+    <div class="chips" id="chips"></div>
+  </header>
+
+  <section id="board">
+    <div class="go" id="go"></div>
+    <div class="top">
+      <section class="panel"><h2>Up next: adaptive queue</h2><p class="help">Order: concepts you missed more than once, then due reviews, then new missions. A clean run (no wrong placements) moves a mission up one level; any miss resets it to 0. Mastered = 3 clean runs on 3 different days.</p><ol class="queue" id="queue"></ol></section>
+      <section class="panel" id="scorePanel"></section>
+    </div>
+    <div class="insights" id="insights"></div>
+    <div id="missions"></div>
+    <div class="tools">
+      <label for="retake">Log a MeasureUp retake %</label><input id="retake" type="number" min="0" max="100" inputmode="numeric" placeholder="e.g. 68"><button class="action alt" id="logRetake">Log retake</button>
+      <span style="flex:1"></span>
+      <button class="action ghost" id="export">Export progress</button><button class="action ghost" id="importBtn">Import</button><input type="file" id="importFile" accept="application/json" class="hidden"><button class="action ghost" id="resetAll">Reset</button>
+    </div>
+    <p class="note">Progress is saved only in this browser (localStorage key <code>az104.benchmarks.v1</code>). Use Export to back it up or move it to another device. Q-numbers are the item order in the MeasureUp report.</p>
+  </section>
+
+  <section id="play" class="hidden">
+    <button class="back" id="backBtn">← NOV25 mission board</button>
+    <div class="playhead"><h2 id="mTitle"></h2><span class="src" id="mSrc"></span></div>
+    <div id="mHistory" class="history hidden"></div>
+    <div id="mBrief" class="brief"></div>
+    <div class="workbench">
+      <section class="panel"><h2>Cards</h2><p class="help">Drag a card into a row. Or tap or press Enter on a card, then on a row.</p><div id="cards" class="cards"></div></section>
+      <section class="panel">
+        <div id="status" class="status" aria-live="polite"></div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite">Place every card. Wrong placements cost the clean run and bounce the card back with the reason.</div>
+        <div class="table-wrap"><table class="answer-table"><thead><tr><th scope="col">Slot</th><th scope="col">Drop here</th></tr></thead><tbody id="rows"></tbody></table></div>
+        <div id="complete" class="complete hidden" role="status"></div>
+      </section>
+    </div>
+  </section>
+</main>
+<script src="bench-core.js"></script>
+<script src="benchmarks/nov25.js"></script>
+<script src="benchmark.js"></script>
+</body>
+</html>
