@@ -1,6 +1,6 @@
 /* Shared benchmark progress + spaced-repetition scheduling.
    Used by index.html (adaptive home button) and benchmark.html (missions).
-   Everything is stored locally in this browser (localStorage); nothing is sent anywhere. */
+   Stored in this browser (localStorage). sync.js can mirror it to the owner's Google Sheet, only after they connect one. */
 (function(){
   const KEY='az104.benchmarks.v1';
   const INTERVALS=[0,1,2,4,7,14]; // days until a mission is due again, by box

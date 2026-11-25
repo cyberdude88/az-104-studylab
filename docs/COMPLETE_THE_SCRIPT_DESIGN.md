@@ -49,6 +49,15 @@ Built on `bench-core.js` (bench id `cts`), using the same Leitner levels as NOV2
 
 **Home button** (`#ctsCta`) is a white card on the dark home page with a live code teaser. After the first run it shows due/new counts, deep-links to `script.html#run`, and shows XP, streak and fluency.
 
+### Google Sheet sync
+
+`sync.js` (`window.LabSync`) can mirror progress to the owner's Google Sheet through `integrations/sheets-sync/Code.gs`. When connected:
+- every finished run is queued and posted;
+- the reply merges back levels (newest *Last played* wins), XP, days, retakes and concept priorities;
+- heat gains `High +3 · Medium +1.5 · Low −1.5`, and `Ignore` drops the concept to the floor and hides it.
+
+See [`integrations/sheets-sync/README.md`](../integrations/sheets-sync/README.md).
+
 ## 4. Data format (`scripts/deck.js`)
 
 ```js

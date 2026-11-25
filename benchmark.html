@@ -79,6 +79,7 @@
       <span style="flex:1"></span>
       <button class="action ghost" id="export">Export progress</button><button class="action ghost" id="importBtn">Import</button><input type="file" id="importFile" accept="application/json" class="hidden"><button class="action ghost" id="resetAll">Reset</button>
     </div>
+    <div id="syncHost" style="--ls-line:#3b6497;--ls-accent:#2f7cf6"></div>
     <p class="note">Progress is saved only in this browser (localStorage key <code>az104.benchmarks.v1</code>). Use Export to back it up or move it to another device.</p>
   </section>
 
@@ -101,6 +102,7 @@
 </main>
 <script src="bench-core.js"></script>
 <script src="benchmarks/nov25.js"></script>
+<script src="sync.js"></script>
 <script src="benchmark.js"></script>
 </body>
 </html>

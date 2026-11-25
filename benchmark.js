@@ -68,13 +68,14 @@ function renderMissions(){
 }
 
 /* ───────── play ───────── */
+let missed=[];
 let mission=null,order=[],placed=new Map(),selected=null,wrong=0,streak=0,best=0,xp=0,done=false;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 
 function openMission(id){
   mission=bench.missions.find(m=>m.id===id);if(!mission){go(null);return}
   order=shuffle(mission.cards.map(([cid,text,row,why,url])=>({cid,text,row,why,url:url||mission.learn})));
-  placed=new Map();selected=null;wrong=0;streak=0;best=0;xp=0;done=false;
+  placed=new Map();selected=null;wrong=0;streak=0;best=0;xp=0;done=false;missed=[];
   $('#board').classList.add('hidden');$('#play').classList.remove('hidden');
   $('#mTitle').textContent=mission.title;
   const ms=C.missionState(state,mission.id);
@@ -128,7 +129,7 @@ function place(cid,rid){
     const bonus=streak%3===0?5:0;xp+=bonus;
     fb.className='feedback good';fb.innerHTML=`✓ <b>${esc(c.text)}</b>: ${esc(c.why)} ${link}${bonus?` <span class="src">+${bonus} streak bonus</span>`:''}`;
   }else{
-    selected=null;wrong++;streak=0;
+    selected=null;wrong++;streak=0;missed.push(c.cid);
     const z=document.querySelector(`[data-zone="${CSS.escape(rid)}"]`);if(z){z.classList.remove('wrong');void z.offsetWidth;z.classList.add('wrong')}
     const label=mission.rows.find(r=>r[0]===rid)?.[1]||'';
     fb.className='feedback bad';fb.innerHTML=`✗ <b>${esc(c.text)}</b> doesn’t go in “${esc(label).replace(/___/g,'<code>___</code>')}”. ${esc(c.why)} ${link}`;
@@ -141,6 +142,7 @@ function finish(){
   done=true;
   const clean=wrong===0,runXp=xp+(clean?25:0);
   const m=C.recordRun(state,mission.id,wrong,runXp);C.save(bench.id,state);
+  if(window.LabSync){const miss=[...new Set(missed)].map(id=>order.find(c=>c.cid===id));window.LabSync.logRun({gameId:bench.id,id:mission.id,title:mission.title,mode:'drag',lang:'',domain:DOMAIN_NAMES[mission.domain],domains:DOMAIN_NAMES[mission.domain],concepts:'',blanks:order.length,misses:wrong,clean,xp:runXp,level:m.box,due:m.due,missed:miss.map(c=>c.text).join('; '),score:Math.round((order.length-miss.length)/order.length*100)})}
   const st=C.status(state,mission.id);
   const nextUp=C.queue(bench,state).find(e=>e.mission.id!==mission.id);
   const dueTxt=m.due<=C.today()?'again today':`on ${m.due}`;
@@ -165,7 +167,7 @@ window.addEventListener('hashchange',route);
 $('#backBtn').onclick=()=>go(null);
 
 /* ───────── tools ───────── */
-$('#logRetake').onclick=()=>{const v=Number($('#retake').value);if(!(v>=0&&v<=100)||$('#retake').value==='')return;state=C.load(bench.id);state.retakes.push({d:C.today(),score:v});C.save(bench.id,state);$('#retake').value='';renderBoard()};
+$('#logRetake').onclick=()=>{const v=Number($('#retake').value);if(!(v>=0&&v<=100)||$('#retake').value==='')return;state=C.load(bench.id);state.retakes.push({d:C.today(),score:v});C.save(bench.id,state);if(window.LabSync)window.LabSync.logRun({gameId:bench.id,id:'retake',title:'Practice-exam retake',mode:'retake',blanks:0,misses:0,clean:false,xp:0,score:v});$('#retake').value='';renderBoard()};
 $('#export').onclick=()=>{const blob=new Blob([JSON.stringify({exported:new Date().toISOString(),data:C.loadAll()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`az104-benchmark-progress-${C.today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 $('#importBtn').onclick=()=>$('#importFile').click();
 $('#importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());const data=j.data||j;if(typeof data!=='object'||Array.isArray(data))throw 0;C.saveAll(data);renderBoard();$('#lead').insertAdjacentHTML('beforeend',' <b style="color:#9ff0d0">Progress imported.</b>')}catch{$('#lead').insertAdjacentHTML('beforeend',' <b style="color:#ffb3bd">That file isn’t a progress export.</b>')}e.target.value=''};
@@ -173,4 +175,5 @@ let resetArmed=false;
 $('#resetAll').onclick=()=>{if(!resetArmed){resetArmed=true;$('#resetAll').textContent='Click again to erase';setTimeout(()=>{resetArmed=false;$('#resetAll').textContent='Reset'},3000);return}const all=C.loadAll();delete all[bench.id];C.saveAll(all);resetArmed=false;$('#resetAll').textContent='Reset';renderBoard()};
 
 route();
+if(window.LabSync&&bench.id==='nov25'){window.LabSync.mount(document.querySelector('#syncHost'),{onPull:g=>{if(g.has(bench.id)&&$('#play').classList.contains('hidden'))renderBoard()}});window.LabSync.auto()}
 })();

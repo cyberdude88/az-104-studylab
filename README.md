@@ -18,6 +18,10 @@ The home page has an adaptive **NOV25 Benchmark** button. It opens [`benchmark.h
 
 [`script.html`](https://cyberdude88.github.io/az-104-studylab/script.html) is a light, editor-style game with 54 fictional scenarios in Azure CLI, PowerShell, Bicep, ARM JSON and KQL, covering all five domains (26 of them span several domains). Fill each blank from a dropdown, or hunt the bugs in a broken script; every pick gets instant feedback and a Microsoft Learn link. An adaptive "Today's run" picks 5 scripts from your hottest concepts: NOV25 misses, tracker flags and misses made in the game. Design: [`docs/COMPLETE_THE_SCRIPT_DESIGN.md`](docs/COMPLETE_THE_SCRIPT_DESIGN.md).
 
+## Google Sheet sync (optional)
+
+Both games can save progress to your own Google Sheet through a small Apps Script web app that you deploy from the Sheet. Runs are logged to `Lab_Runs`, levels to `Lab_Status`, and concept heat to `Lab_Concepts`, with a formula `Lab_Dashboard` on top. Sync is two-way: other devices pull the same levels and XP, and setting **Your priority** on a concept in the Sheet re-ranks Today's run. Setup and security: [`integrations/sheets-sync/README.md`](integrations/sheets-sync/README.md).
+
 ## Live site
 
 <https://cyberdude88.github.io/az-104-studylab/>

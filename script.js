@@ -25,7 +25,9 @@ function save(){C.save(D.id,st)}
 /* ───────── adaptive ranking ───────── */
 let novState=null;
 function novOpen(tag){const c=D.concepts[tag];if(!c||!c.nov||!NOV)return false;novState=novState||C.load('nov25');return c.nov.some(id=>C.missionState(novState,id).box<C.MASTER_BOX)}
-function heat(tag){const c=D.concepts[tag]||{w:1};const l=st.concepts[tag]||{miss:0,hit:0};return Math.max(.3,c.w+l.miss*1.5-l.hit*.4+(novOpen(tag)?1:0))}
+const LS=window.LabSync;
+function heat(tag){const c=D.concepts[tag]||{w:1};const l=st.concepts[tag]||{miss:0,hit:0};if(LS&&LS.ignored(tag))return .3;return Math.max(.3,c.w+l.miss*1.5-l.hit*.4+(novOpen(tag)?1:0)+(LS?LS.prioBonus(tag):0))}
+window.CTS_HEAT=heat;
 function blankMisses(m){return m.b.reduce((a,_,i)=>a+(st.blanks[m.id+':'+(i+1)]||0),0)}
 function rank(){
   novState=null;
@@ -74,7 +76,7 @@ function renderBoard(){
   };
   /* heat */
   const used=new Set(D.missions.flatMap(m=>m.tags));
-  const hl=[...used].map(t=>({t,h:heat(t),c:D.concepts[t],l:st.concepts[t]||{miss:0,hit:0}})).sort((a,b)=>b.h-a.h).slice(0,9);
+  const hl=[...used].filter(t=>!(LS&&LS.ignored(t))).map(t=>({t,h:heat(t),c:D.concepts[t],l:st.concepts[t]||{miss:0,hit:0}})).sort((a,b)=>b.h-a.h).slice(0,9);
   const maxH=Math.max(...hl.map(x=>x.h),1);
   $('#heat').innerHTML=hl.map(x=>`<li><button data-tag="${esc(x.t)}" title="Show scripts for this concept">${esc(x.c.label)}<span class="src">${esc(x.c.src)}${x.l.miss?` · ${x.l.miss} miss${x.l.miss>1?'es':''} here`:''}${x.l.hit?` · ${x.l.hit} right`:''}</span></button><span class="bar"><i style="width:${Math.round(x.h/maxH*100)}%;background:${heatColor(x.h)}"></i></span><b>${x.h.toFixed(1)}</b></li>`).join('');
   $('#heat').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter={kind:'tag',val:b.dataset.tag};renderGrid(r);$('#filters').scrollIntoView({behavior:'smooth',block:'start'})});
@@ -122,7 +124,7 @@ const tagOf=(m,b)=>b.t||m.tags[0];
 
 function startPlay(m){
   st=load();
-  P={m,fix:m.mode==='fix',xp:0,combo:0,best:0,misses:0,finished:false,
+  P={m,fix:m.mode==='fix',xp:0,combo:0,best:0,misses:0,missed:[],finished:false,
      toks:m.b.map(b=>{const ans=answersOf(b);const opts=[...new Set([...ans,...(b.bug?[b.bug]:[]),...b.o])];return {val:m.mode==='fix'?(b.bug||ans[0]):null,done:false,verified:false,miss:0,opts:shuffle(opts),struck:new Set()}})};
   const run=getRun();
   document.title=`${m.title} · Complete the Script`;
@@ -193,7 +195,7 @@ window.addEventListener('resize',()=>closeMenu());
 function concept(tag,hit){const c=st.concepts[tag]||(st.concepts[tag]={miss:0,hit:0});hit?c.hit++:c.miss++}
 function miss(i,v,msg){
   const m=P.m,b=m.b[i],t=P.toks[i];
-  t.miss++;P.misses++;P.combo=0;concept(tagOf(m,b),false);
+  t.miss++;P.misses++;P.combo=0;concept(tagOf(m,b),false);P.missed.push(`#${i+1} ${v}`);
   const k=m.id+':'+(i+1);st.blanks[k]=(st.blanks[k]||0)+1;save();
   const reason=(b.w&&b.w[v])||'That doesn’t do what the brief asks.';
   feedback('bad',`<span class="lbl">✗ <code>${esc(v)}</code></span>${msg?esc(msg)+' ':''}${reason} <a href="${esc(m.learn[0][1])}" target="_blank" rel="noopener noreferrer">Learn ↗</a>`);
@@ -221,7 +223,7 @@ function pick(i,v){
     const next=P.fix?null:P.toks.findIndex(o=>!o.done);
     if(isComplete())finish();else if(next!=null&&next>=0){const el=$(`#pCode .tok[data-i="${next}"]`);el&&el.focus()}
   }else{
-    if(dupe){t.miss++;P.misses++;P.combo=0;feedback('bad',`<span class="lbl">✗ <code>${esc(v)}</code></span>Already used in the other blank. Pick its partner.`);save()}
+    if(dupe){t.miss++;P.misses++;P.combo=0;P.missed.push(`#${i+1} ${v} (dupe)`);feedback('bad',`<span class="lbl">✗ <code>${esc(v)}</code></span>Already used in the other blank. Pick its partner.`);save()}
     else miss(i,v);
     renderCode();flash(i);updateStats();
   }
@@ -231,7 +233,7 @@ function isComplete(){return P.m.b.every((b,i)=>P.fix?(!b.bug||P.toks[i].done):P
 $('#pHint').onclick=()=>{
   if(!P||P.finished)return;const m=P.m;
   const i=P.toks.findIndex((t,k)=>!t.done&&(!P.fix||m.b[k].bug));if(i<0)return;
-  const t=P.toks[i],b=m.b[i];t.miss++;P.misses++;P.combo=0;concept(tagOf(m,b),false);save();
+  const t=P.toks[i],b=m.b[i];t.miss++;P.misses++;P.combo=0;P.missed.push(`#${i+1} hint`);concept(tagOf(m,b),false);save();
   if(P.fix){renderCode();const el=$(`#pCode .tok[data-i="${i}"]`);el.classList.add('suspect');el.closest('.ln').classList.add('hl');el.focus();feedback('bad',`<span class="lbl">💡 Hint</span>Token ${i+1} is one of the bugs. Think about: ${esc((D.concepts[tagOf(m,b)]||{}).label||'')}.`)}
   else{const ans=answersOf(b);const wrong=t.opts.filter(o=>!ans.includes(o)&&!t.struck.has(o));shuffle(wrong).slice(0,Math.max(1,Math.floor(wrong.length/2))).forEach(o=>t.struck.add(o));renderCode();const el=$(`#pCode .tok[data-i="${i}"]`);el.focus();feedback('bad',`<span class="lbl">💡 Hint</span>Some wrong options are crossed out in blank ${i+1}.`)}
   updateStats();
@@ -243,6 +245,7 @@ function finish(){
   st=load();
   const before=C.missionState(st,m.id).box;
   const rec=C.recordRun(st,m.id,P.misses,P.xp);save();topBar();updateStats();
+  if(LS){const scored=P.toks.filter((t,k)=>!P.fix||m.b[k].bug);LS.logRun({gameId:'cts',id:m.id,title:m.title,mode:m.mode,lang:LANG[m.lang],domain:DOM[m.domains[0]],domains:m.domains.map(d=>DOM[d]).join(', '),concepts:m.tags.join(', '),blanks:m.b.length,misses:P.misses,clean,xp:P.xp,level:rec.box,due:rec.due,missed:P.missed.join('; '),score:Math.round(scored.filter(t=>!t.miss).length/Math.max(scored.length,1)*100)})}
   $('#pHint').disabled=true;
   feedback('good',`<span class="lbl">▶ Running ${esc(m.file)}…</span>`);
   const term=$('#pTerm'),out=$('#pOut');term.classList.remove('hidden');out.innerHTML='';
@@ -288,5 +291,6 @@ $('#importBtn').onclick=()=>$('#importFile').click();
 $('#importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(j.kind!=='az104-cts'||!j.state||typeof j.state!=='object')throw 0;C.save(D.id,j.state);renderBoard()}catch{alert('That file is not a Complete the Script export.')}e.target.value=''};
 let armed=null;$('#resetAll').onclick=()=>{const b=$('#resetAll');if(armed){clearTimeout(armed);armed=null;const all=C.loadAll();delete all[D.id];C.saveAll(all);setRun(null);b.textContent='Reset';renderBoard();return}b.textContent='Click again to erase';armed=setTimeout(()=>{armed=null;b.textContent='Reset'},3000)};
 
+if(LS){LS.mount($('#syncHost'),{onPull:g=>{if(!g.has('cts')&&!g.has('nov25'))return;st=load();if(!P)renderBoard();else topBar()}});LS.auto()}
 route();
 })();
