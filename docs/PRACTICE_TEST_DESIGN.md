@@ -140,13 +140,12 @@ Q({id:'nw-peer-transit',type:'single',obj:'vnets',tags:['peering','vpn'],diff:1,
 | Exam simulation | At the end | 50 items, 100 min | Exam blueprint by domain weight, includes a case study, mark for review |
 | Case studies | After each part | One case | Three parts, the scenario stays open in tabs |
 
-The live side panel shows the overall estimate with its band and the change this session, the 5 domain bars against the 700 line, the item count, a timer, a **scratch pad** toggle and **End**. **End** returns to the dashboard:
+The live side panel shows the overall estimate, the points still needed to reach 700, the change this session, a bar per domain against the 700 line, the item count, a timer, a **scratch pad** toggle and **End**. **End** returns to the dashboard:
 
-* trend of the overall and domain estimates over attempts;
-* domain bars with bands;
-* objective grid;
+* **Distance to pass:** a horizontal bar chart of the overall and domain estimates on the 100–1000 scale. The hatched segment is the gap to 700, and the 15 objectives expand below it, weakest first.
+* the trend of the overall and domain estimates over sessions;
 * accuracy by format;
-* recent attempts.
+* recent sessions.
 
 All of this syncs to the `Lab_Competency` tab in the Sheet.
 

@@ -30,7 +30,7 @@
   /* rewording pools: every fictional org has a matching .example DNS name */
   const pools={
     org:[['Kestrel Robotics','kestrelrobotics.example'],['Bluefen Studios','bluefen.example'],['Vantage Rail','vantagerail.example'],['Saltmarsh Labs','saltmarshlabs.example'],['Harborline Clinics','harborline.example'],['Quarry Outdoor','quarryoutdoor.example'],['Ledgerworks','ledgerworks.example'],['Orchard & Pike Law','orchardpike.example'],['Lumen Bakery Co','lumenbakery.example'],['Granite Peak School District','granitepeak.example'],['Northdune Freight','northdune.example'],['Copperleaf Insurance','copperleaf.example']],
-    person:['Priya Natarajan','Tomas Reyes','Aiko Mori','Daniel Okafor','Lena Fischer','Marcus Bell','Sofia Ruiz','Ivan Petrov','Grace Liu','Noah Haddad'],
+    person:['Ilse Varga','Tomas Reyes','Aiko Mori','Daniel Okafor','Lena Fischer','Marcus Bell','Sofia Ruiz','Ivan Petrov','Grace Liu','Noah Haddad'],
     region:[['East US','West US'],['West Europe','North Europe'],['Canada Central','Canada East'],['Australia East','Australia Southeast'],['UK South','UK West'],['Japan East','Japan West']]
   };
   const items=[];

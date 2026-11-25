@@ -312,14 +312,23 @@ function next(){
 }
 
 /* ───────── HUD ───────── */
-function scaleHTML(score,band){
-  const pct=x=>Math.max(0,Math.min(100,(x-100)/9));
-  return `<div class="track"></div><div class="bandr" style="left:${pct(score-band)}%;width:${pct(score+band)-pct(score-band)}%"></div><div class="pass"></div><div class="dot" style="left:${pct(score)}%"></div>`;
+const pct=v=>Math.max(0,Math.min(100,(v-100)/9));
+/* horizontal bars on the 100–1000 scale: fill = estimate, hatched = gap to 700 */
+function gapChart(rows){
+  const P=pct(700);
+  return `<div class="gc">${rows.map(r=>{
+    const g=r.score-700,f=pct(r.score);
+    const tip=`<b>${esc(r.name)}</b><br>Estimate ${r.score} ± ${r.band}<br>${g<0?`${-g} below the 700 pass line`:`${g} above the 700 pass line`}${r.n!=null?`<br>${r.n} answered`:''}`;
+    return `<div class="gr ${r.cls||''}" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(r.name)}: ${r.score}, ${g<0?-g+' below':g+' above'} pass"><span class="gl">${esc(r.label||r.name)}${r.sub?`<small>${esc(r.sub)}</small>`:''}</span><span class="gb"><span class="tr"></span><span class="fi" style="width:${f}%"></span>${g<0&&P-f>.6?`<span class="ga" style="left:calc(${f}% + 2px);width:calc(${P-f}% - 2px)"></span>`:''}<span class="pl" style="left:${P}%"></span></span><span class="gv"><b>${r.score}</b>${g<0?`<span class="neg">−${-g}</span>`:`<span class="pos">✓ +${g}</span>`}</span></div>`}).join('')}
+  <div class="gax"><span></span><span class="gt"><span style="left:0">100</span><span style="left:${pct(400)}%">400</span><b style="left:${P}%">700</b><span style="left:100%">1000</span></span><span></span></div></div>`;
 }
-function drowHTML(d,x,short){
-  const pct=v=>Math.max(0,Math.min(100,(v-100)/9));
-  return `<div class="drow"><span class="nm"><span class="sw" style="background:var(--c-${d})"></span>${esc(short?PT.domains[d].name.split(' ')[0]:PT.domains[d].name)}</span><span class="mbar"><span class="bandr" style="left:${pct(x.score-x.band)}%;width:${pct(x.score+x.band)-pct(x.score-x.band)}%"></span><span class="fill" style="width:${pct(x.score)}%;background:var(--c-${d})"></span><span class="pass"></span></span><span class="v">${x.score}${short?'':`<small>±${x.band}</small>`}</span></div>`;
-}
+const domRow=(d,x,short)=>({name:PT.domains[d].name,label:short?PT.domains[d].name.split(' ')[0]:PT.domains[d].name,...x});
+const togo=sc=>sc>=700?`<span class="togo ok">✓ ${sc-700} above pass</span>`:`<span class="togo">${700-sc} to pass</span>`;
+(function(){const t=document.createElement('div');t.className='tip hidden';document.body.appendChild(t);
+  const show=(el,x,y)=>{t.innerHTML=el.dataset.tip;t.classList.remove('hidden');const w=t.offsetWidth,h=t.offsetHeight;t.style.left=Math.min(innerWidth-w-8,x+14)+'px';t.style.top=(y+h+20>innerHeight?y-h-10:y+16)+'px'};
+  document.addEventListener('mousemove',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');el?show(el,e.clientX,e.clientY):t.classList.add('hidden')});
+  document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(!el){t.classList.add('hidden');return}const r=el.getBoundingClientRect();show(el,r.left+r.width/2,r.bottom-8)});
+  document.addEventListener('focusout',()=>t.classList.add('hidden'));addEventListener('scroll',()=>t.classList.add('hidden'),{passive:true})})();
 function deltaHTML(a,b){const d=a-b;return `<span class="delta ${d>0?'up':d<0?'down':'flat'}">${d>0?'▲ +':d<0?'▼ ':''}${d}</span>`}
 function renderHud(){
   const o=M.overall(s),frozen=A.mode==='exam';
@@ -328,10 +337,9 @@ function renderHud(){
   $('#hudMode').textContent=MODES[A.mode];
   $('#hudScore').textContent=shown.score;
   if(prev!==String(shown.score)){const el=$('#hudScore').parentElement;el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}
-  $('#hudDelta').innerHTML=frozen?'':deltaHTML(o.score,A.before.overall);
-  $('#hudScale').innerHTML=scaleHTML(shown.score,shown.band);
-  $('#hudNote').textContent=frozen?'Estimate updates when you finish, like the real exam.':`±${o.band} band · 700 is the pass line · change this session shown`;
-  $('#hudDomains').innerHTML=DOMS.map(d=>drowHTML(d,frozen?{score:A.before.domains[d],band:0}:M.domainScore(s,d),true)).join('');
+  $('#hudDelta').innerHTML=frozen||o.score===A.before.overall?'':deltaHTML(o.score,A.before.overall);
+  $('#hudNote').innerHTML=frozen?'Updates when you finish.':togo(shown.score);
+  $('#hudDomains').innerHTML=gapChart(DOMS.map(d=>domRow(d,frozen?{score:A.before.domains[d],band:0}:M.domainScore(s,d),true)));
   const subs=Object.values(A.sub),n=frozen?Object.keys(A.resp).filter(i=>started(byId[A.seq[i].iid],A.resp[i])).length:subs.length;
   const right=subs.filter(x=>x.s>=1).length,sum=subs.reduce((a,x)=>a+x.s,0);
   $('#hudN').textContent=n;$('#hudRight').textContent=frozen?'-':right;$('#hudPct').textContent=frozen||!subs.length?'-':Math.round(sum/subs.length*100)+'%';
@@ -397,9 +405,9 @@ function renderResults(){
   const rows=R.seq.map((p,i)=>({p,i,it:byId[p.iid],r:R.sub[i]})).filter(x=>x.r);
   $('#results').innerHTML=`<p class="eyebrow">${esc(MODES[R.mode])} · ${new Date(R.start).toLocaleDateString()} · ${mins} min</p>
     <h1>${R.total?`${R.pct}% · ${R.right}/${R.total} fully correct`:'No questions answered'}</h1>
-    <p class="lead">Estimated score <b>${R.before.overall}</b> → <b>${R.after.overall}</b> ${deltaHTML(R.after.overall,R.before.overall)}. ${R.after.overall>=700?'You are at or above the 700 line on this estimate.':`${700-R.after.overall} points below the 700 line.`}</p>
+    <p class="lead">Estimated score <b>${R.before.overall}</b> → <b>${R.after.overall}</b> ${deltaHTML(R.after.overall,R.before.overall)} · ${R.after.overall>=700?`${R.after.overall-700} above pass`:`${700-R.after.overall} to pass`}</p>
     <div class="board"><div class="card"><h2>Domains this session</h2><table class="att"><thead><tr><th>Domain</th><th>Answered</th><th>Score</th><th>Estimate</th></tr></thead><tbody>${DOMS.map(d=>{const x=per[d];return `<tr><td>${esc(PT.domains[d].name)}</td><td>${x?x.n:0}</td><td>${x?Math.round(x.sum/x.n*100)+'%':'-'}</td><td>${R.before.domains[d]} → <b>${R.after.domains[d]}</b> ${deltaHTML(R.after.domains[d],R.before.domains[d])}</td></tr>`}).join('')}</tbody></table></div>
-    <div class="card"><h2>Next</h2><p class="help">The next adaptive session starts from these results. Questions you missed come back after a day, with new names.</p><div class="actions"><a class="btn" href="#" id="rDash">Back to dashboard</a><button class="btn sec" id="rAgain">Start another ${esc(MODES[R.mode].toLowerCase())}</button></div>${R.notes?`<h2 style="margin-top:1rem">Scratch pad</h2><pre style="white-space:pre-wrap;font:13px/1.6 var(--mono);background:var(--soft);padding:.7rem;border-radius:.4rem;margin:0">${esc(R.notes)}</pre>`:''}</div></div>
+    <div class="card"><h2>Next</h2><div class="actions"><a class="btn" href="#" id="rDash">Back to dashboard</a><button class="btn sec" id="rAgain">Start another ${esc(MODES[R.mode].toLowerCase())}</button></div>${R.notes?`<h2 style="margin-top:1rem">Scratch pad</h2><pre style="white-space:pre-wrap;font:13px/1.6 var(--mono);background:var(--soft);padding:.7rem;border-radius:.4rem;margin:0">${esc(R.notes)}</pre>`:''}</div></div>
     <h2>Questions</h2><ul class="rlist">${rows.map(({p,i,it,r})=>`<li><span class="mk ${r.s>=1?'g':r.s>0?'p':'b'}">${r.s>=1?'✓':r.s>0?'◐':'✗'}</span><span><b>Q${i+1}</b> · ${esc(TYPES[it.type])} · ${esc(PT.objectives[it.obj].name)}${r.skipped?' · <i>not answered</i>':''}<br><span class="help" style="margin:0">${esc(strip(sub(it.stem[0],p.vars)).slice(0,150))}…</span></span><span>${Math.round(r.s*100)}%</span><details data-i="${i}"><summary>Review</summary><div class="rv"></div></details></li>`).join('')}</ul>`;
   $('#rDash').onclick=e=>{e.preventDefault();location.hash=''};
   $('#rAgain').onclick=()=>start(R.mode);
@@ -413,21 +421,16 @@ function renderDash(){
   s=M.load();
   $('#crumbMode').textContent='';$('#crumbModeSep').classList.add('hidden');
   const o=M.overall(s),h=s.hist,prev=h.length>1?h[h.length-2].overall:null;
-  const weakest=Object.keys(PT.objectives).map(k=>({k,...M.objScore(s,k)})).sort((a,b)=>a.score-b.score)[0];
-  const answered=Object.values(s.obj).reduce((a,x)=>a+x.n,0);
-  $('#overallCard').innerHTML=`<h2>Estimated score</h2><div class="big"><b>${o.score}</b><span>/ 1000 · ±${o.band}</span>${prev!=null?deltaHTML(o.score,prev):''}</div>
-    <p class="verdict">${o.score>=700?'At or above the 700 pass line on this estimate. Keep it there with spaced sessions.':`${700-o.score} points below the pass line. Biggest lift available: <b>${esc(PT.objectives[weakest.k].name)}</b> (${weakest.score}).`}</p>
-    <div class="scale">${scaleHTML(o.score,o.band)}</div><div class="ticks"><span>100</span><span>400</span><span>700</span><span>1000</span></div>
-    <p class="help" style="margin:.8rem 0 0">${answered?`${answered} questions answered in ${s.attempts.length} session${s.attempts.length===1?'':'s'}.`:'This starting point comes from your 25 Nov practice exam, by objective. Every answer refines it.'} This is an estimate from this site’s model, not Microsoft’s scoring.</p>`;
-  $('#domainRows').innerHTML=DOMS.map(d=>drowHTML(d,M.domainScore(s,d))).join('');
-  $('#objs').innerHTML=Object.entries(PT.objectives).map(([k,ob])=>{const x=M.objScore(s,k);return `<div class="obj ${x.score<600?'lo':x.score<700?'mid':'hi'}" title="${esc(ob.name)}"><b>${x.score}</b>${esc(ob.name)}<br><span>${esc(PT.domains[ob.d].name)} · ${x.n} answered</span></div>`}).join('');
-  $('#fmts').innerHTML=Object.keys(TYPES).map(t=>{const a=M.fmtAcc(s,t),n=(s.fmt[t]||{}).n||0;return `<div class="fmt"><span>${esc(TYPES[t])}</span><span class="mbar"><span class="fill" style="width:${a==null?0:a*100}%"></span></span><em>${a==null?'not yet':Math.round(a*100)+'% · '+n}</em></div>`}).join('');
+  $('#hero').innerHTML=`<b>${o.score}</b><span>/ 1000 · ±${o.band}</span>${prev!=null?deltaHTML(o.score,prev):''}${togo(o.score)}`;
+  $('#gapChart').innerHTML=gapChart([{name:'Overall',cls:'tot',...o},...DOMS.map(d=>domRow(d,M.domainScore(s,d)))]);
+  $('#objChart').innerHTML=gapChart(Object.entries(PT.objectives).map(([k,ob])=>({name:ob.name,sub:PT.domains[ob.d].name,cls:'sm',...M.objScore(s,k)})).sort((a,b)=>a.score-b.score));
+  $('#fmts').innerHTML=Object.keys(TYPES).map(t=>{const a=M.fmtAcc(s,t),n=(s.fmt[t]||{}).n||0;return `<div class="fmt"><span>${esc(TYPES[t])}</span><span class="mbar"><span class="fill" style="width:${a==null?0:a*100}%"></span></span><em>${a==null?'-':Math.round(a*100)+'% · '+n}</em></div>`}).join('');
   const at=s.attempts.slice(-6).reverse();
-  $('#recent').innerHTML=at.length?`<table class="att"><thead><tr><th>When</th><th>Mode</th><th>Qs</th><th>Score</th><th>Estimate</th></tr></thead><tbody>${at.map(a=>`<tr><td>${new Date(a.start).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</td><td>${esc(MODES[a.mode])}</td><td>${a.n}</td><td>${a.pct}%</td><td>${a.after} ${deltaHTML(a.after,a.before)}</td></tr>`).join('')}</tbody></table>`:'<p class="help">No sessions yet. Start with <b>Adaptive</b>: it begins with your weakest objectives.</p>';
+  $('#recent').innerHTML=at.length?`<table class="att"><thead><tr><th>When</th><th>Mode</th><th>Qs</th><th>Score</th><th>Estimate</th></tr></thead><tbody>${at.map(a=>`<tr><td>${new Date(a.start).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</td><td>${esc(MODES[a.mode])}</td><td>${a.n}</td><td>${a.pct}%</td><td>${a.after} ${deltaHTML(a.after,a.before)}</td></tr>`).join('')}</tbody></table>`:'<p class="help">None yet.</p>';
   $('#trend').innerHTML=trendSVG(h);
   const nc=units.filter(u=>u.kind==='case').length;
-  $('#bankNote').textContent=`${scored} questions in a targeted bank: ${units.length-nc} standalone + ${nc} three-part case studies. Names and order change every time.`;
-  $('#examMeta').textContent=`${Math.min(50,scored)} questions · 100 min`;
+  $('#bankNote').textContent=`${scored} questions · ${nc} case studies`;
+  $('#examMeta').textContent=`${Math.min(50,scored)} Qs · 100 min`;
   $('#topEst').innerHTML=`Estimated <b>${o.score}</b> / 1000`;
 }
 function trendSVG(h){
