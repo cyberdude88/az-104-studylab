@@ -25,3 +25,7 @@ python3 -m http.server 4173 --bind 127.0.0.1
 ```
 
 Then open <http://127.0.0.1:4173>.
+
+## Notice
+
+Personal, non-commercial study aid, published temporarily for exam preparation. Not for commercial use or redistribution. Scenarios are original paraphrases with fictional names; no exam or practice-test content is reproduced. Not affiliated with or endorsed by Microsoft or any practice-test provider. Provided as is. See [NOTICE.md](NOTICE.md).

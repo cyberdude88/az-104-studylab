@@ -56,6 +56,7 @@
     @media(max-width:980px){.insights{grid-template-columns:1fr}.top{grid-template-columns:1fr}}
     @media(max-width:760px){main{width:calc(100% - 1rem)}.workbench{grid-template-columns:1fr}.dbar{grid-template-columns:7rem 1fr 2.6rem}.answer-table{min-width:0}.step{width:40%}}
     @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  .legal{margin:2rem 0 0;padding-top:1rem;border-top:1px solid #23466f;color:#8fa6c6;font-size:.76rem;line-height:1.5}.legal a{color:#9cc5ff}
   </style>
 </head>
 <body>
@@ -78,7 +79,7 @@
       <span style="flex:1"></span>
       <button class="action ghost" id="export">Export progress</button><button class="action ghost" id="importBtn">Import</button><input type="file" id="importFile" accept="application/json" class="hidden"><button class="action ghost" id="resetAll">Reset</button>
     </div>
-    <p class="note">Progress is saved only in this browser (localStorage key <code>az104.benchmarks.v1</code>). Use Export to back it up or move it to another device. Q-numbers are the item order in the benchmark report.</p>
+    <p class="note">Progress is saved only in this browser (localStorage key <code>az104.benchmarks.v1</code>). Use Export to back it up or move it to another device.</p>
   </section>
 
   <section id="play" class="hidden">
@@ -96,6 +97,7 @@
       </section>
     </div>
   </section>
+<footer class="legal"><b>Personal study aid. Not for commercial use.</b> Temporary, non-commercial self-study material. Scenarios are original paraphrases with fictional names; no exam or practice-test content is reproduced. Not affiliated with or endorsed by Microsoft or any practice-test provider. Microsoft and Azure are trademarks of Microsoft Corporation. Provided as is, with no warranty. <a href="https://github.com/cyberdude88/az-104-studylab/blob/main/NOTICE.md" target="_blank" rel="noopener noreferrer">Full notice</a>.</footer>
 </main>
 <script src="bench-core.js"></script>
 <script src="benchmarks/nov25.js"></script>

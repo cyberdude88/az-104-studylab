@@ -32,39 +32,39 @@ These concepts appear in the Sheet as misses or weak areas before 25 Nov and wer
 
 | Mission | Earlier evidence (Sheet) | NOV25 miss |
 |---|---|---|
-| `peering`: both directions, never transitive | CONV-D4-Q12 peering non-transitivity (26 Oct); Weak Concepts | Q35 one-way peering stuck at *Initiated*; Q36 transitivity |
-| `dns-delegation`: NS at registrar → Azure DNS | CONV-D4-Q16 subdomain delegation (26 Oct) | Q42 |
-| `vmss-manual`: Manual upgrade policy cmdlets | R3-Q5 Uniform vs Flexible; COMP-CUSTOMSCRIPT-Q11 | Q28 `Update-AzVmssInstance` |
-| `mg-move`: management-group cmdlets | R3-Q7 MG nesting | Q9 |
-| `policy-provider`: Azure Policy not working | CONV-D1-Q1 Deny on updates | Q7 `Microsoft.PolicyInsights` not registered |
-| `restore-availset`: restore disks + template | THISCHAT-Q2 restore new VM vs CRR; snapshot vs Backup (weak) | Q49 |
-| `layered-vnet`: subnets + service endpoints | VOICE-QUIZ-Q2, ADV-20261027-S1 service endpoint misses | Q34 |
+| `peering`: both directions, never transitive | CONV-D4-Q12 peering non-transitivity (26 Oct); Weak Concepts | One-way peering stuck at *Initiated*; transitivity |
+| `dns-delegation`: NS at registrar → Azure DNS | CONV-D4-Q16 subdomain delegation (26 Oct) | Delegating a new domain from the registrar |
+| `vmss-manual`: Manual upgrade policy cmdlets | R3-Q5 Uniform vs Flexible; COMP-CUSTOMSCRIPT-Q11 | `Update-AzVmssInstance` under Manual policy |
+| `mg-move`: management-group cmdlets | R3-Q7 MG nesting | Moving a subscription and deleting the empty MG |
+| `policy-provider`: Azure Policy not working | CONV-D1-Q1 Deny on updates | `Microsoft.PolicyInsights` not registered |
+| `restore-availset`: restore disks + template | THISCHAT-Q2 restore new VM vs CRR; snapshot vs Backup (weak) | Restore disks + template into an availability set |
+| `layered-vnet`: subnets + service endpoints | VOICE-QUIZ-Q2, ADV-20261027-S1 service endpoint misses | Three-tier subnet plan with service endpoints |
 
 **Slipped:** these were right before as multiple choice and wrong now in a different format.
 
 | Mission | Before | NOV25 |
 |---|---|---|
-| `file-recovery` | MON-FILERECOVERY-Q8 correct (26 Oct) | Q48 missed as a 4-step order |
-| `blob-tiers` | R3-Q1 Archive rehydration correct (26 Oct) | Q17 Cold tier, Q19 "up to 15 hours" missed |
+| `file-recovery` | MON-FILERECOVERY-Q8 correct (26 Oct) | Missed as a 4-step order |
+| `blob-tiers` | R3-Q1 Archive rehydration correct (26 Oct) | Cold tier and "up to 15 hours" missed |
 
 ## 3. What improved
 
 | Concept | October | NOV25 |
 |---|---|---|
-| Azure RBAC scope and role assignment | CONV-D1-Q4 Contributor can't assign roles, missed | Q3, Q4 correct; objective 100% |
-| SAS / storage access | R3-Q2 stored access policy, missed | Q12 SAS least privilege correct; objective 100% |
-| NSG evaluation, ASGs | CONV-D4-Q6 missed → NET-NSGPRIORITY correct (4 Nov) | Q37 NSG DNS over UDP and Q39 ASG membership correct; secure access 75% |
-| Private DNS zones | CONV-D4-Q13 auto-registration, missed | Q41 private zone across VNets correct |
-| Site Recovery and vault operations | Drilled in StudyLab (ASR churn, BV vs RSV) | Q50, Q52, Q54 correct |
-| Storage redundancy | Drilled in StudyLab replication matrices | Q14 ZRS correct |
+| Azure RBAC scope and role assignment | CONV-D1-Q4 Contributor can't assign roles, missed | 2/2 correct; objective 100% |
+| SAS / storage access | R3-Q2 stored access policy, missed | SAS least privilege correct; objective 100% |
+| NSG evaluation, ASGs | CONV-D4-Q6 missed → NET-NSGPRIORITY correct (4 Nov) | NSG DNS over UDP and ASG membership correct; secure access 75% |
+| Private DNS zones | CONV-D4-Q13 auto-registration, missed | Private zone across VNets correct |
+| Site Recovery and vault operations | Drilled in StudyLab (ASR churn, BV vs RSV) | Planned failover, High Churn, Backup reports correct |
+| Storage redundancy | Drilled in StudyLab replication matrices | ZRS correct |
 
 The topics with dedicated StudyLab drag-and-drop drills (RBAC tables, ASR churn, vault comparison, replication matrices) all held up. That is the reason this recovery uses the same format.
 
 ## 4. Patterns behind the score
 
-1. **Format, not just concepts.** 13 of the 31 misses were build-it items: 8 PowerShell or Bicep fill-ins (Q9, Q11, Q26, Q27, Q28, Q30, Q44, Q46) and 5 put-in-order sequences (Q34, Q38, Q42, Q48, Q49). The missions reproduce those formats as blanks to fill and slots to order.
+1. **Format, not just concepts.** 13 of the 31 misses were build-it items: 8 PowerShell or Bicep fill-ins and 5 put-in-order sequences. The missions reproduce those formats as blanks to fill and slots to order.
 2. **Recognition without recall.** The file-recovery and rehydration slips show the concept was recognized as multiple choice but couldn't be reproduced as steps or a number.
-3. **Disputed keys.** Q9 (the practice-exam key gives `Remove-AzManagementGroupSubscription` where `Remove-AzManagementGroup` performs the deletion), Q38 (Bastion "browser only" is true for Basic SKU only), and Q22 (Server 2012 R2 does speak SMB 3.0). These missions teach the actual platform behavior and mark the key as disputed so a "wrong" answer there isn't over-weighted.
+3. **Disputed keys.** Management-group cmdlets (the key gives `Remove-AzManagementGroupSubscription` where `Remove-AzManagementGroup` performs the deletion), Bastion ("browser only" is true for Basic SKU only), and Azure Files OS support (Server 2012 R2 does speak SMB 3.0). These missions teach the actual platform behavior and mark the key as disputed so a "wrong" answer there isn't over-weighted.
 
 ## 5. The custom button: adaptive design
 
@@ -124,38 +124,38 @@ The ring shows **Recovery %**: the average mission level ÷ the mastery level. I
 
 ## 6. Mission catalog (28 missions, 165 cards, all 31 misses covered)
 
-| Domain | Mission id | Benchmark Q | Format |
-|---|---|---|---|
-| Identity | `sspr` | Q1 | True/False sort |
-| Identity | `policy-provider` ↻ | Q7 | Cause / fix / not-cause |
-| Identity | `mg-move` ↻ ⚠ | Q9 | Cmdlet → purpose |
-| Identity | `budget-alerts` | Q10 | Ordered steps + reject |
-| Identity | `tags-merge` | Q11 | Script blanks |
-| Storage | `azcopy-sync` | Q13 | Command parts + reject |
-| Storage | `azcopy-auth` | Q16 | Works / doesn't work |
-| Storage | `blob-tiers` ⤵ | Q17, Q19 | Tier buckets |
-| Storage | `blob-versioning` | Q21 | Creates version or not |
-| Storage | `files-onprem` ⚠ | Q18, Q22 | Requirement + OS buckets |
-| Compute | `arm-clone` | Q25 | Ordered steps |
-| Compute | `bicep-advisor` | Q26 | Declare / not |
-| Compute | `bicep-deps` | Q27 | Implicit / explicit / sequence / parallel |
-| Compute | `vmss-manual` ↻ | Q28 | Cmdlet → purpose |
-| Compute | `ade-linux` | Q30 | True/False |
-| Compute | `autoscale-math` | Q31 | Timeline |
-| Compute | `webjobs` | Q32 | True/False |
-| Networking | `layered-vnet` ↻ | Q34 | Ordered steps |
-| Networking | `peering` ↻ | Q35, Q36 | Reachability + fix |
-| Networking | `bastion` ⚠ | Q38 | Ordered steps |
-| Networking | `dns-delegation` ↻ | Q42 | Ordered steps |
-| Networking | `imds-lb` | Q43 | Error → cause |
-| Networking | `dns-recordset` | Q44 | Script blanks |
-| Monitor | `packet-capture` | Q46 | Script blanks |
-| Monitor | `file-recovery` ⤵ | Q48 | Ordered steps |
-| Monitor | `restore-availset` ↻ | Q49 | Ordered steps |
-| Monitor | `vault-delete` | Q51 | Ordered steps |
-| Monitor | `vault-create` | Q53 | Do / later / conflicts |
+| Domain | Mission id | Format |
+|---|---|---|
+| Identity | `sspr` | True/False sort |
+| Identity | `policy-provider` ↻ | Cause / fix / not-cause |
+| Identity | `mg-move` ↻ ⚠ | Cmdlet → purpose |
+| Identity | `budget-alerts` | Ordered steps + reject |
+| Identity | `tags-merge` | Script blanks |
+| Storage | `azcopy-sync` | Command parts + reject |
+| Storage | `azcopy-auth` | Works / doesn't work |
+| Storage | `blob-tiers` ⤵ | Tier buckets |
+| Storage | `blob-versioning` | Creates version or not |
+| Storage | `files-onprem` ⚠ | Requirement + OS buckets |
+| Compute | `arm-clone` | Ordered steps |
+| Compute | `bicep-advisor` | Declare / not |
+| Compute | `bicep-deps` | Implicit / explicit / sequence / parallel |
+| Compute | `vmss-manual` ↻ | Cmdlet → purpose |
+| Compute | `ade-linux` | True/False |
+| Compute | `autoscale-math` | Timeline |
+| Compute | `webjobs` | True/False |
+| Networking | `layered-vnet` ↻ | Three-tier subnet plan with service endpoints | Ordered steps |
+| Networking | `peering` ↻ | Reachability + fix |
+| Networking | `bastion` ⚠ | Ordered steps |
+| Networking | `dns-delegation` ↻ | Delegating a new domain from the registrar | Ordered steps |
+| Networking | `imds-lb` | Error → cause |
+| Networking | `dns-recordset` | Script blanks |
+| Monitor | `packet-capture` | Script blanks |
+| Monitor | `file-recovery` ⤵ | Ordered steps |
+| Monitor | `restore-availset` ↻ | Restore disks + template into an availability set | Ordered steps |
+| Monitor | `vault-delete` | Ordered steps |
+| Monitor | `vault-create` | Do / later / conflicts |
 
-↻ recurring · ⤵ slipped · ⚠ answer key disputed. Q numbers are the item order in the benchmark report. Scenarios are paraphrased, not copied.
+↻ recurring · ⤵ slipped · ⚠ answer key disputed. Scenarios are original paraphrases; all resource names, domains and addresses are fictional.
 
 ## 7. Adding the next benchmark
 
@@ -173,3 +173,7 @@ The ring shows **Recovery %**: the average mission level ÷ the mastery level. I
 | `benchmark.html` / `benchmark.js` | Mission board and drag-and-drop engine |
 | `index.html` | Adaptive `#benchCta` button |
 | `.github/workflows/pages.yml` | Copies the new files to the Pages artifact |
+
+## 9. Notice
+
+Personal study aid for temporary, non-commercial use only. See [`NOTICE.md`](../NOTICE.md). Scenarios are original paraphrases written for self-study; every resource name, domain, address and number is fictional. Not affiliated with, sponsored by or endorsed by Microsoft or any practice-test provider. No exam content is reproduced.

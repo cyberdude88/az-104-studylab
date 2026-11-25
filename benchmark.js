@@ -60,7 +60,7 @@ function renderMissions(){
     list.forEach(m=>{
       const st=C.status(state,m.id),ms=C.missionState(state,m.id);
       const b=document.createElement('button');b.className=`mcard st-${st}`;
-      b.innerHTML=`<div>${badges(m,st)}</div><b>${esc(m.title)}</b><div class="meta"><span>${m.src.join(', ')} · ${m.cards.length} cards${ms.runs?` · ${ms.runs} run${ms.runs>1?'s':''}`:''}</span>${pips(ms.box)}</div>`;
+      b.innerHTML=`<div>${badges(m,st)}</div><b>${esc(m.title)}</b><div class="meta"><span>${m.cards.length} cards${ms.runs?` · ${ms.runs} run${ms.runs>1?'s':''}`:''}</span>${pips(ms.box)}</div>`;
       b.onclick=()=>go(m.id);grid.append(b);
     });
     host.append(block);
@@ -78,7 +78,7 @@ function openMission(id){
   $('#board').classList.add('hidden');$('#play').classList.remove('hidden');
   $('#mTitle').textContent=mission.title;
   const ms=C.missionState(state,mission.id);
-  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · Benchmark ${mission.src.join(', ')} · ${badges(mission,C.status(state,mission.id))} ${pips(ms.box)}`;
+  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · ${badges(mission,C.status(state,mission.id))} ${pips(ms.box)}`;
   const h=$('#mHistory');if(mission.history){h.className='history'+(mission.regressed?' regress':'');h.innerHTML=`<b>${mission.regressed?'Slipped':'Recurring'}:</b> ${esc(mission.history)}`}else h.className='history hidden';
   $('#mBrief').innerHTML=mission.brief;
   $('#feedback').className='feedback';$('#feedback').innerHTML=`Place every card. A wrong placement ends the clean run and the card bounces back with the reason. <a href="${esc(mission.learn)}" target="_blank" rel="noopener noreferrer">Microsoft Learn</a>`;
@@ -149,7 +149,7 @@ function finish(){
   <br><span class="src">Next review: ${m.due}. Learn: <a href="${esc(mission.learn)}" target="_blank" rel="noopener noreferrer">${esc(mission.learn.replace('https://learn.microsoft.com/en-us/',''))}</a></span>
   <div class="actions">${nextUp?`<a class="action" href="#m=${esc(nextUp.mission.id)}">Next: ${esc(nextUp.mission.title)} →</a>`:''}<button class="action alt" id="replay">Replay</button><a class="action ghost" href="#">Mission board</a></div>`;
   $('#replay').onclick=()=>openMission(mission.id);
-  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · Benchmark ${mission.src.join(', ')} · ${badges(mission,st)} ${pips(m.box)}`;
+  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · ${badges(mission,st)} ${pips(m.box)}`;
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
