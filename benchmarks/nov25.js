@@ -1,4 +1,4 @@
-/* NOV25 Benchmark — MeasureUp AZ-104 certification-mode attempt, 25 Nov 2026: 43% (23/54).
+/* NOV25 Benchmark — AZ-104 practice exam, certification-mode attempt, 25 Nov 2026: 43% (23/54).
    Every mission below maps to one or more missed items (src). Scenarios are paraphrased, not copied.
    Card tuple: [id, text, rowId, why, optionalLearnUrl]. Row tuple: [id, label, hint]. */
 (function(){
@@ -8,7 +8,7 @@ window.BENCHMARKS.nov25={
   id:'nov25',
   title:'NOV25 Benchmark',
   date:'2026-11-25',
-  source:'MeasureUp · Microsoft Azure Administrator · Certification mode',
+  source:'AZ-104 practice exam · Certification mode',
   score:{pct:43,correct:23,total:54,duration:'1h 38m'},
   domains:[
     {id:'identity',name:'Identity & governance',pct:55,prior:80,objectives:[['Entra users & groups',50],['Access to Azure resources',100],['Subscriptions & governance',43]]},
@@ -18,7 +18,7 @@ window.BENCHMARKS.nov25={
     {id:'monitor',name:'Monitor & maintain',pct:50,prior:66.7,objectives:[['Monitor resources',67],['Backup & recovery',43]]}
   ],
   priorLabel:'Tutorials Dojo Review Set 1 · 4 Nov (71.6%)',
-  trend:[['28 Oct','Timed exam (reconstructed)',60],['4 Nov','Tutorials Dojo Review Set 1',71.6],['25 Nov','MeasureUp cert mode',43]],
+  trend:[['28 Oct','Timed exam (reconstructed)',60],['4 Nov','Tutorials Dojo Review Set 1',71.6],['25 Nov','Practice exam (cert mode)',43]],
   improved:[
     ['Azure RBAC scope & role assignment','Missed 26 Oct (Contributor can’t assign roles) → 2/2 correct today · objective 100%'],
     ['SAS / storage access','Stored-access-policy miss 26 Oct → SAS least-privilege correct · objective 100%'],
@@ -30,7 +30,7 @@ window.BENCHMARKS.nov25={
   patterns:[
     '13 of 31 misses were build-it items: 8 PowerShell/Bicep fill-ins and 5 put-in-order sequences. Concept recall is ahead of cmdlet and step-order recall.',
     'Two concepts were right on an earlier multiple-choice attempt but missed today as a different format: file-level restore (now a 4-step sequence) and Archive rehydration (now “how long?”).',
-    'MeasureUp’s answer key is disputable on 3 items (management-group cmdlets, Bastion native client, Server 2012 R2 SMB). Those missions teach the platform behavior and flag the key.'
+    'The practice exam’s answer key is disputable on 3 items (management-group cmdlets, Bastion native client, Server 2012 R2 SMB). Those missions teach the platform behavior and flag the key.'
   ],
   missions:[
   /* ───────── Identity & governance ───────── */
@@ -65,8 +65,8 @@ window.BENCHMARKS.nov25={
    rows:[['move','Move SalesSub under Marketing','A subscription has exactly one parent MG'],['detach','Detach a subscription from an MG','Sends it back to the root MG'],['delete','Delete the empty Sales MG','Only works once it has no children'],['rename','Rename an MG or change its parent','Edits the MG itself']],
    cards:[
     ['g1','New-AzManagementGroupSubscription -GroupName Marketing -SubscriptionId <id>','move','This associates the subscription with the target MG. Because a subscription can only have one parent, that moves it.'],
-    ['g2','Remove-AzManagementGroupSubscription','detach','Removes the subscription from its current MG; it falls back under the root. MeasureUp’s key counts this as part of the “move”.'],
-    ['g3','Remove-AzManagementGroup -GroupName Sales','delete','Deletes a management group, but only an empty one. ⚠ MeasureUp marked this wrong, yet it is the cmdlet that performs the deletion step in the scenario.'],
+    ['g2','Remove-AzManagementGroupSubscription','detach','Removes the subscription from its current MG; it falls back under the root. The practice exam’s key counts this as part of the “move”.'],
+    ['g3','Remove-AzManagementGroup -GroupName Sales','delete','Deletes a management group, but only an empty one. ⚠ The practice exam marked this wrong, yet it is the cmdlet that performs the deletion step in the scenario.'],
     ['g4','Update-AzManagementGroup','rename','Changes an MG’s display name or parent (-ParentId). It does not move subscriptions.']
    ]},
   {id:'budget-alerts',domain:'identity',src:['Q10'],title:'Budget alert fatigue',

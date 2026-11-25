@@ -12,7 +12,7 @@ Drag an action into the answer table, or tap the action and then its destination
 
 ## NOV25 Benchmark recovery
 
-The home page has an adaptive **NOV25 Benchmark** button. It opens [`benchmark.html?b=nov25`](https://cyberdude88.github.io/az-104-studylab/benchmark.html?b=nov25), a mission board built from the 31 items missed on the 25 Nov 2026 MeasureUp attempt (43%). There are 28 drag-and-drop missions, with spaced review and XP/streaks. Progress is saved in browser `localStorage` (Export/Import included). Use `#next` to jump to the top of the queue, or `#m=<id>` to open one mission. Design notes: [`docs/NOV25_BENCHMARK_ADAPTIVE_DESIGN.md`](docs/NOV25_BENCHMARK_ADAPTIVE_DESIGN.md).
+The home page has an adaptive **NOV25 Benchmark** button. It opens [`benchmark.html?b=nov25`](https://cyberdude88.github.io/az-104-studylab/benchmark.html?b=nov25), a mission board built from the 31 items missed on the 25 Nov 2026 practice exam attempt (43%). There are 28 drag-and-drop missions, with spaced review and XP/streaks. Progress is saved in browser `localStorage` (Export/Import included). Use `#next` to jump to the top of the queue, or `#m=<id>` to open one mission. Design notes: [`docs/NOV25_BENCHMARK_ADAPTIVE_DESIGN.md`](docs/NOV25_BENCHMARK_ADAPTIVE_DESIGN.md).
 
 ## Live site
 

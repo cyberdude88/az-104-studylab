@@ -9,9 +9,9 @@
 | Field | Value |
 |---|---|
 | Date | 2026-11-25 |
-| Source | MeasureUp, Microsoft Azure Administrator, Certification mode |
+| Source | AZ-104 practice exam, certification mode |
 | Score | **43%**: 23/54 correct, 31 incorrect, 0 unanswered, 1h 38m |
-| Review method | Playwright read the MeasureUp report page; each item was tagged correct or incorrect from its result icon and mapped to its objective |
+| Review method | Playwright read the practice-exam report page; each item was tagged correct or incorrect from its result icon and mapped to its objective |
 | Compared against | Google Sheet *AZ-104 Exam Readiness* (Question Log, Weak Concepts, Progress, Dashboard) |
 
 ### Domain and objective results
@@ -24,7 +24,7 @@
 | Networking | 36% | 66.7% | **Virtual networks 0** · Secure access 75 · DNS & LB 25 |
 | Monitor & maintain | 50% | 66.7% | Monitor resources 67 · Backup & recovery 43 |
 
-Score trend: 28 Oct timed exam about 60% (reconstructed, 609/1000 scaled) → 4 Nov Tutorials Dojo 71.6% → 25 Nov MeasureUp 43%. These come from different vendors in different formats, so read them as a direction, not as point-for-point deltas.
+Score trend: 28 Oct timed exam about 60% (reconstructed, 609/1000 scaled) → 4 Nov Tutorials Dojo 71.6% → 25 Nov practice exam 43%. These come from different vendors in different formats, so read them as a direction, not as point-for-point deltas.
 
 ## 2. What recurs
 
@@ -64,7 +64,7 @@ The topics with dedicated StudyLab drag-and-drop drills (RBAC tables, ASR churn,
 
 1. **Format, not just concepts.** 13 of the 31 misses were build-it items: 8 PowerShell or Bicep fill-ins (Q9, Q11, Q26, Q27, Q28, Q30, Q44, Q46) and 5 put-in-order sequences (Q34, Q38, Q42, Q48, Q49). The missions reproduce those formats as blanks to fill and slots to order.
 2. **Recognition without recall.** The file-recovery and rehydration slips show the concept was recognized as multiple choice but couldn't be reproduced as steps or a number.
-3. **Disputed keys.** Q9 (MeasureUp keys `Remove-AzManagementGroupSubscription` where `Remove-AzManagementGroup` performs the deletion), Q38 (Bastion "browser only" is true for Basic SKU only), and Q22 (Server 2012 R2 does speak SMB 3.0). These missions teach the actual platform behavior and mark the key as disputed so a "wrong" answer there isn't over-weighted.
+3. **Disputed keys.** Q9 (the practice-exam key gives `Remove-AzManagementGroupSubscription` where `Remove-AzManagementGroup` performs the deletion), Q38 (Bastion "browser only" is true for Basic SKU only), and Q22 (Server 2012 R2 does speak SMB 3.0). These missions teach the actual platform behavior and mark the key as disputed so a "wrong" answer there isn't over-weighted.
 
 ## 5. The custom button: adaptive design
 
@@ -77,7 +77,7 @@ The button sits at the top of the StudyLab home page (`index.html`, `#benchCta`)
 | `new` | No mission played yet | "Fix the 31 missed concepts" plus the count of repeat misses | Mission board | Red: the benchmark is a fail |
 | `due` | Any mission new or due today | "`N` due · `M` new · next: *mission*" | `#m=<top-of-queue>`, straight into the drill | Amber |
 | `caught` | Nothing due; some still learning | "Caught up for today" plus the spaced-review count | Mission board | Blue |
-| `cleared` | Every mission at mastery level | "Benchmark cleared: retake MeasureUp" | Mission board (log the retake) | Green |
+| `cleared` | Every mission at mastery level | "Benchmark cleared: retake the practice exam" | Mission board (log the retake) | Green |
 
 The ring shows **Recovery %**: the average mission level ÷ the mastery level. It only rises with spaced clean runs, not with time spent. The `aria-label` repeats the full state for screen readers.
 
@@ -124,7 +124,7 @@ The ring shows **Recovery %**: the average mission level ÷ the mastery level. I
 
 ## 6. Mission catalog (28 missions, 165 cards, all 31 misses covered)
 
-| Domain | Mission id | MeasureUp Q | Format |
+| Domain | Mission id | Benchmark Q | Format |
 |---|---|---|---|
 | Identity | `sspr` | Q1 | True/False sort |
 | Identity | `policy-provider` ↻ | Q7 | Cause / fix / not-cause |
@@ -155,7 +155,7 @@ The ring shows **Recovery %**: the average mission level ÷ the mastery level. I
 | Monitor | `vault-delete` | Q51 | Ordered steps |
 | Monitor | `vault-create` | Q53 | Do / later / conflicts |
 
-↻ recurring · ⤵ slipped · ⚠ answer key disputed. Q numbers are the item order in the MeasureUp report. Scenarios are paraphrased, not copied.
+↻ recurring · ⤵ slipped · ⚠ answer key disputed. Q numbers are the item order in the benchmark report. Scenarios are paraphrased, not copied.
 
 ## 7. Adding the next benchmark
 

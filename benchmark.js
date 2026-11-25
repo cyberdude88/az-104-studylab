@@ -24,7 +24,7 @@ function renderBoard(){
   const next=q[0];
   const goText=!sum.started?{h:'Start with the recurring misses',s:`${bench.missions.filter(m=>m.recurring).length} concepts you missed before ${bench.date} and missed again on the benchmark. Start there.`,b:'Start first mission'}
     :sum.actionable?{h:`${sum.due} due · ${sum.new} not started`,s:`Next: ${next.mission.title} (${STATUS_LABEL[next.status].toLowerCase()}).`,b:'Continue'}
-    :sum.mastered===sum.total?{h:'Benchmark cleared 🎉',s:'All missions mastered. Retake MeasureUp in certification mode and log the score below.',b:'Review a mission'}
+    :sum.mastered===sum.total?{h:'Benchmark cleared 🎉',s:'All missions mastered. Retake the practice exam in certification mode and log the score below.',b:'Review a mission'}
     :{h:'All caught up for today',s:`Nothing due. ${sum.learning} missions are scheduled for spaced review. Come back tomorrow, or practice ahead.`,b:'Practice ahead'};
   $('#go').innerHTML=`<div><b>${esc(goText.h)}</b><small>${esc(goText.s)}</small></div><a class="action big" href="#m=${encodeURIComponent(next.mission.id)}">${esc(goText.b)} →</a>`;
   $('#queue').innerHTML=q.slice(0,6).map(e=>`<li><button data-m="${esc(e.mission.id)}">${esc(e.mission.title)}</button>${badges(e.mission,e.status)}${pips(e.state.box)}</li>`).join('');
@@ -78,7 +78,7 @@ function openMission(id){
   $('#board').classList.add('hidden');$('#play').classList.remove('hidden');
   $('#mTitle').textContent=mission.title;
   const ms=C.missionState(state,mission.id);
-  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · MeasureUp ${mission.src.join(', ')} · ${badges(mission,C.status(state,mission.id))} ${pips(ms.box)}`;
+  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · Benchmark ${mission.src.join(', ')} · ${badges(mission,C.status(state,mission.id))} ${pips(ms.box)}`;
   const h=$('#mHistory');if(mission.history){h.className='history'+(mission.regressed?' regress':'');h.innerHTML=`<b>${mission.regressed?'Slipped':'Recurring'}:</b> ${esc(mission.history)}`}else h.className='history hidden';
   $('#mBrief').innerHTML=mission.brief;
   $('#feedback').className='feedback';$('#feedback').innerHTML=`Place every card. A wrong placement ends the clean run and the card bounces back with the reason. <a href="${esc(mission.learn)}" target="_blank" rel="noopener noreferrer">Microsoft Learn</a>`;
@@ -149,7 +149,7 @@ function finish(){
   <br><span class="src">Next review: ${m.due}. Learn: <a href="${esc(mission.learn)}" target="_blank" rel="noopener noreferrer">${esc(mission.learn.replace('https://learn.microsoft.com/en-us/',''))}</a></span>
   <div class="actions">${nextUp?`<a class="action" href="#m=${esc(nextUp.mission.id)}">Next: ${esc(nextUp.mission.title)} →</a>`:''}<button class="action alt" id="replay">Replay</button><a class="action ghost" href="#">Mission board</a></div>`;
   $('#replay').onclick=()=>openMission(mission.id);
-  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · MeasureUp ${mission.src.join(', ')} · ${badges(mission,st)} ${pips(m.box)}`;
+  $('#mSrc').innerHTML=`${esc(DOMAIN_NAMES[mission.domain])} · Benchmark ${mission.src.join(', ')} · ${badges(mission,st)} ${pips(m.box)}`;
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
