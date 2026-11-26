@@ -78,3 +78,23 @@ Tokens are real buttons. The option menu is keyboard-navigable (↑/↓, Enter, 
 ## 6. Notice
 
 Personal, temporary, non-commercial study aid. All scenarios are original and fictional; no exam or practice-test content is reproduced. Not affiliated with Microsoft. See [NOTICE.md](../NOTICE.md).
+
+## Study drill (added 2026-11-26)
+
+A third way in, next to Today's run and the grid: **every script once, in a fixed priority order**, numbered 1–54.
+
+* **Order** lives in `scripts/deck.js` as `drill` and never changes on its own, so a number always means the same script. It is ranked by repeat misses (concept weight 3) first, then NOV25 misses and slips with the weakest objective first (VNets 0% · Files & Blob 17% · DNS & LB 25% · VMs / App Service 33% · ARM / Bicep 40% · Governance / Backup 43%), then tracker flags, then new ground. It doesn't read the Sheet. Scripts added to the deck but not to `drill` are appended at the end.
+* **Adaptive next:** after each script, *Next* goes to the first unplayed number after the current one, wrapping round. When none are left it serves the missed ones in number order, until every number is clean.
+* **Number rail:** the board shows all 54 numbers. Grey means not played, green clean, pale green clean on a retry, red missed, and an orange dot marks a repeat-miss concept. In play, the same numbers form a sticky rail on the left (a horizontal strip on mobile). Click any number to jump there: `script.html#d=<n>`.
+* **Start over** clears the drill marks only. Levels, XP, spaced review and concept heat are kept, because every drill run is still recorded through `BenchCore.recordRun`.
+* **State:** `cts.drill = { pos, res: { <script-id>: 'clean' | 'miss' | 'fixed' } }` in `az104.benchmarks.v1`. Export and Import include it. Sheet sync leaves it alone.
+
+## Brief layout (added 2026-11-26)
+
+Every brief has three parts, with space between them:
+
+1. **Scenario:** one or two sentences of context (`scenario`). It holds no requirements. In fix-it scripts it also says what went wrong.
+2. **Requirements:** one bullet per requirement (`req: [...]`), so each one can be checked against a blank.
+3. **Instructions:** a muted line under a rule, such as "Select each blue blank…" or "This script has N bugs…".
+
+A new script must have both `scenario` and a non-empty `req`.

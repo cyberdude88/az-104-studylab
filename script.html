@@ -49,7 +49,7 @@
     .play-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:.8rem}.play-head h1{font-size:clamp(1.45rem,2.6vw,2rem);letter-spacing:-.02em}
     .play-head .row{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;margin-top:.45rem}
     .layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1.2rem;align-items:start}
-    .brief{border-left:3px solid var(--blue);background:var(--soft);padding:.75rem .95rem;border-radius:0 .45rem .45rem 0;margin-bottom:.8rem}.brief p{margin:0}.brief,.feedback,.recap li{overflow-wrap:anywhere}
+    .brief{border-left:3px solid var(--blue);background:var(--soft);padding:1rem 1.2rem;border-radius:0 .45rem .45rem 0;margin-bottom:1rem}.brief p{margin:0}.brief .bh{margin:0 0 .35rem;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.brief .scen{margin:0 0 1.1rem;font-size:.98rem;line-height:1.6}.brief ul.req{margin:0 0 1.1rem;padding-left:1.25rem;display:grid;gap:.5rem;font-size:.95rem;line-height:1.5}.brief ul.req li::marker{color:var(--blue)}.brief .instr{margin:0;padding-top:.75rem;border-top:1px solid var(--line2);color:var(--muted);font-size:.86rem}.brief,.feedback,.recap li{overflow-wrap:anywhere}
     .symptom{margin:0 0 .8rem;border:1px solid #f1b8be;background:#fff8f8;border-radius:.45rem;overflow:hidden}.symptom header{padding:.35rem .75rem;background:var(--redSoft);color:var(--red);font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}.symptom pre{margin:0;padding:.6rem .75rem;font:13px/1.5 var(--mono);color:#8e1b25;white-space:pre-wrap}
     .feedback{position:sticky;top:3.5rem;z-index:5;margin:0 0 .8rem;padding:.6rem .85rem;border:1px solid var(--line);border-left:4px solid var(--line2);border-radius:.4rem;background:#fff;font-size:.9rem;min-height:2.8rem;box-shadow:0 6px 16px rgba(27,31,36,.06)}.feedback.good{border-left-color:var(--green)}.feedback.bad{border-left-color:var(--red)}.feedback .lbl{font-weight:700;margin-right:.3rem}.feedback.good .lbl{color:var(--green)}.feedback.bad .lbl{color:var(--red)}.feedback a{font-size:.85rem}
     .editor{border:1px solid var(--line2);border-radius:.5rem;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(27,31,36,.04)}
@@ -78,10 +78,29 @@
     .done-panel{margin-top:.9rem;border:1px solid #9ad29a;background:linear-gradient(100deg,#f1faf1,#fff 70%);border-radius:.5rem;padding:1rem 1.1rem}.done-panel.miss{border-color:#e9c46a;background:linear-gradient(100deg,#fffaf0,#fff 70%)}.done-panel .actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
     .recap{margin:.6rem 0 0;padding:0;list-style:none;display:grid;gap:.4rem}.recap li{font-size:.86rem;padding:.45rem .6rem;border:1px solid var(--line);border-radius:.4rem;background:#fff}.recap li code{background:var(--greenSoft);color:#0e5a0e}.recap li.missed{border-color:#f1b8be}
     .legal{margin:2.4rem 0 0;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.76rem}
+    /* study drill */
+    .drill{border:1px solid #c7dcf2;border-radius:.6rem;background:#fff;padding:1.1rem 1.2rem;margin-bottom:1.2rem}
+    .drill .top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.8rem 1.4rem;align-items:center}
+    .drill .top b{font-size:1.1rem}.drill .top small{display:block;color:var(--muted);margin-top:.15rem}
+    .drill .acts{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    .drill .stats{display:flex;gap:1rem;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin:.8rem 0 .5rem}.drill .stats b{color:var(--text);font-variant-numeric:tabular-nums}
+    .nums{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.35rem,1fr));gap:.3rem}
+    .dn{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;height:2.1rem;border-radius:.35rem;border:1px solid var(--line2);background:#fff;font:600 .8rem/1 var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;position:relative}
+    .dn:hover{border-color:var(--blue);color:var(--blue)}.dn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+    .dn.d-clean{background:var(--greenSoft);border-color:#9ad29a;color:#0e5a0e}.dn.d-fixed{background:#eef8ee;border-color:#b7e1b5;color:#2f6b2f}
+    .dn.d-miss{background:var(--redSoft);border-color:#f1b8be;color:var(--red)}
+    .dn.cur{box-shadow:0 0 0 2px var(--blue);color:var(--blue);border-color:var(--blue)}
+    .dn.hotn::after{content:"";position:absolute;top:.2rem;right:.2rem;width:.32rem;height:.32rem;border-radius:50%;background:#d4570e}
+    .legend{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.74rem;color:var(--muted);margin-top:.55rem}.legend i{display:inline-block;width:.7rem;height:.7rem;border-radius:.2rem;border:1px solid var(--line2);vertical-align:-.1rem;margin-right:.25rem}
+    .legend .c{background:var(--greenSoft);border-color:#9ad29a}.legend .f{background:#eef8ee;border-color:#b7e1b5}.legend .m{background:var(--redSoft);border-color:#f1b8be}.legend .h{border:0;background:#d4570e;border-radius:50%;width:.4rem;height:.4rem;vertical-align:.05rem}
+    .layout.with-rail{grid-template-columns:4.4rem minmax(0,1fr) 320px}
+    .rail{position:sticky;top:3.6rem;max-height:calc(100vh - 4.6rem);overflow-y:auto;display:flex;flex-direction:column;gap:.25rem;padding:.5rem .35rem;border:1px solid var(--line);border-radius:.5rem;background:var(--soft);scrollbar-width:thin}
+    .rail .rh{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}.rail .rc{font:600 .72rem var(--mono);text-align:center;color:var(--text);margin-bottom:.2rem}
+    .rail .dn{height:1.9rem;flex:none}
     @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
     @keyframes pulse{50%{box-shadow:0 0 0 4px rgba(197,15,31,.18)}}
     @keyframes blink{50%{opacity:0}}
-    @media(max-width:980px){.two{grid-template-columns:minmax(0,1fr)}.layout{grid-template-columns:minmax(0,1fr)}.side{position:static}}
+    @media(max-width:980px){.two{grid-template-columns:minmax(0,1fr)}.layout,.layout.with-rail{grid-template-columns:minmax(0,1fr)}.rail{position:static;flex-direction:row;max-height:none;overflow-x:auto;align-items:center}.rail .dn{width:2.1rem}.rail .rh,.rail .rc{margin:0 .3rem;white-space:nowrap}.drill .top{grid-template-columns:1fr}.drill .acts{justify-content:flex-start}.side{position:static}}
     @media(max-width:640px){main,.topbar .in{width:calc(100% - 1rem)}.topbar .xp span.hide-s{display:none}.topbar .xp{gap:.55rem}.topbar .crumb b,.topbar .crumb>span:nth-of-type(2){display:none}.code{font-size:12.5px}.code .ln::before{width:2.2rem;padding-right:.6rem}.run{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   </style>
@@ -95,6 +114,7 @@
       <p class="lead">Everything in the portal has a CLI. Fill each blank in real Azure CLI, PowerShell, Bicep and KQL, or hunt the bug in a broken script. You get feedback on every pick, each answer links to Microsoft Learn, and the scenarios you miss come back first.</p></div>
       <div class="chips" id="chips"></div>
     </header>
+    <section class="drill" id="drill" aria-label="Study drill"></section>
     <div class="run" id="run"></div>
     <div class="two">
       <section class="card"><h2>Weak spots</h2><p class="help">Ranked by heat: your NOV25 misses and tracker flags, plus every miss you make here, cooled by correct answers. Select one to filter the scripts.</p><ul class="heat" id="heat"></ul></section>
@@ -109,7 +129,8 @@
 
   <section id="play" class="hidden" aria-live="polite">
     <div class="play-head"><div><p class="eyebrow" id="pEyebrow"></p><h1 id="pTitle"></h1><div class="row" id="pTags"></div></div><div><button class="btn sec" id="pBack">← All scripts</button></div></div>
-    <div class="layout">
+    <div class="layout" id="pLayout">
+      <nav class="rail hidden" id="pRail" aria-label="Study drill progress"></nav>
       <div>
         <div class="brief" id="pBrief"></div>
         <div id="pSymptom"></div>

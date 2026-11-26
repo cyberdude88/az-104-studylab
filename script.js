@@ -45,6 +45,45 @@ function todayRun(){
   if(!pick.some(e=>e.mission.mode==='fix')){const f=pool.find(e=>e.mission.mode==='fix'&&!pick.includes(e));if(f)pick[pick.length-1]=f}
   return pick.map(e=>e.mission.id);
 }
+/* ───────── study drill: every script once, in a fixed priority order ─────────
+   Numbers never move (#50 is always the same script). It adapts by what it serves next:
+   unplayed numbers first (from where you are), then the ones you missed, until every number is clean. */
+const ORDER=[...(D.drill||[]).filter(id=>byId[id]),...D.missions.map(m=>m.id).filter(id=>!(D.drill||[]).includes(id))];
+const N=ORDER.length;
+function drill(){const d=st.drill||(st.drill={pos:0,res:{}});d.res=d.res||{};d.pos=Math.min(Math.max(d.pos|0,0),N-1);return d}
+function dres(i){return drill().res[ORDER[i]]}
+function dTarget(from){ // next number to serve, scanning forward from index `from` and wrapping
+  for(const want of [undefined,'miss'])for(let k=0;k<N;k++){const i=(from+k)%N;if(dres(i)===want)return i}
+  return -1;
+}
+function dCounts(){const r=drill().res;let clean=0,fixed=0,miss=0;ORDER.forEach(id=>{const v=r[id];if(v==='clean')clean++;else if(v==='fixed')fixed++;else if(v==='miss')miss++});return {clean,fixed,miss,left:N-clean-fixed-miss}}
+function numBtn(i,cur){const id=ORDER[i],m=byId[id],v=dres(i)||'new';const hot=m.tags.some(t=>(D.concepts[t]||{}).w>=3);
+  return `<button class="dn d-${v}${i===cur?' cur':''}${hot?' hotn':''}" data-n="${i+1}" title="${i+1}. ${esc(m.title)} (${v==='new'?'not played':v==='miss'?'missed':v==='fixed'?'clean on retry':'clean'})"${i===cur?' aria-current="step"':''}>${i+1}</button>`}
+function goDrill(n){if(location.hash==='#d='+n)route();else location.hash='d='+n}
+let drillArmed=null;
+function renderDrill(){
+  const d=drill(),c=dCounts(),t=dTarget(d.pos),started=c.left<N;
+  const m=t>=0?byId[ORDER[t]]:null;
+  const head=!started?{h:`Study drill: all ${N} scripts, most important first`,s:`Starts with your repeat misses (peering, UDRs, service vs private endpoints, DNS delegation) and works down to new ground. Jump to any number below.`,b:'Start at #1'}
+    :c.left?{h:`Study drill: #${t+1} of ${N} is next`,s:`${m.title}. Numbers you skip stay open; misses come back after the unplayed ones.`,b:`Resume at #${t+1}`}
+    :c.miss?{h:`Pass complete: retry ${c.miss} missed`,s:`Next miss: #${t+1} ${m.title}. A clean retry turns it green.`,b:`Retry #${t+1}`}
+    :{h:'Drill cleared: every script clean ✓',s:'Start over for a fresh pass, or let Today’s run handle spaced review.',b:'Start a new pass'};
+  $('#drill').innerHTML=`<div class="top"><div><b>${esc(head.h)}</b><small>${esc(head.s)}</small></div>
+    <div class="acts">${started?`<button class="btn sec" id="drillReset" title="Clears drill marks only. Levels, XP and spaced review are kept.">Start over</button>`:''}<button class="btn big" id="drillGo">${esc(head.b)} →</button></div></div>
+    <div class="stats"><span><b>${c.clean+c.fixed}</b> clean</span><span><b>${c.miss}</b> missed</span><span><b>${c.left}</b> not played</span></div>
+    <div class="nums" role="list">${ORDER.map((_,i)=>numBtn(i,started&&t===i?i:-1)).join('')}</div>
+    <div class="legend"><span><i></i>not played</span><span><i class="c"></i>clean</span><span><i class="f"></i>clean on retry</span><span><i class="m"></i>missed</span><span><i class="h"></i> repeat-miss concept</span></div>`;
+  $('#drill').querySelectorAll('.nums .dn').forEach(b=>b.onclick=()=>goDrill(b.dataset.n));
+  $('#drillGo').onclick=()=>{if(started&&!c.left&&!c.miss){st.drill={pos:0,res:{}};save();goDrill(1);return}goDrill((t<0?0:t)+1)};
+  const rb=$('#drillReset');if(rb)rb.onclick=()=>{if(drillArmed){clearTimeout(drillArmed);drillArmed=null;st.drill={pos:0,res:{}};save();renderDrill();return}rb.textContent='Click again to clear';drillArmed=setTimeout(()=>{drillArmed=null;rb.textContent='Start over'},3000)};
+}
+function renderRail(cur){
+  const c=dCounts();
+  $('#pRail').innerHTML=`<span class="rh">Drill</span><span class="rc">${cur+1}/${N}</span>${ORDER.map((_,i)=>numBtn(i,cur)).join('')}<span class="rc" title="clean · missed">✓${c.clean+c.fixed} ✗${c.miss}</span>`;
+  $('#pRail').querySelectorAll('.dn').forEach(b=>b.onclick=()=>goDrill(b.dataset.n));
+  const el=$('#pRail .dn.cur');if(el)el.scrollIntoView({block:'nearest',inline:'nearest'});
+}
+
 function getRun(){try{const r=JSON.parse(sessionStorage.getItem(RUN_KEY));return r&&r.day===C.today()?r:null}catch{return null}}
 function setRun(r){try{r?sessionStorage.setItem(RUN_KEY,JSON.stringify(r)):sessionStorage.removeItem(RUN_KEY)}catch{}}
 
@@ -59,6 +98,7 @@ function renderBoard(){
   document.title='Complete the Script · AZ-104 StudyLab';
   $('#crumbScript').classList.add('hidden');$('#crumbTitle').textContent='';
   topBar();
+  renderDrill();
   $('#chips').innerHTML=`<div class="chip g"><strong>${s.readiness}%</strong><span>Script fluency</span></div><div class="chip"><strong>${s.mastered}/${s.total}</strong><span>Mastered</span></div><div class="chip a"><strong>${s.due+s.new}</strong><span>To do</span></div><div class="chip b"><strong>${s.xp}</strong><span>XP</span></div>`;
   /* today's run */
   let run=getRun();const ids=run?run.ids:todayRun();
@@ -122,9 +162,9 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(M
 const answersOf=b=>Array.isArray(b.a)?b.a:[b.a];
 const tagOf=(m,b)=>b.t||m.tags[0];
 
-function startPlay(m){
+function startPlay(m,dn){
   st=load();
-  P={m,fix:m.mode==='fix',xp:0,combo:0,best:0,misses:0,missed:[],finished:false,
+  P={m,dn:dn||0,fix:m.mode==='fix',xp:0,combo:0,best:0,misses:0,missed:[],finished:false,
      toks:m.b.map(b=>{const ans=answersOf(b);const opts=[...new Set([...ans,...(b.bug?[b.bug]:[]),...b.o])];return {val:m.mode==='fix'?(b.bug||ans[0]):null,done:false,verified:false,miss:0,opts:shuffle(opts),struck:new Set()}})};
   const run=getRun();
   document.title=`${m.title} · Complete the Script`;
@@ -134,7 +174,7 @@ function startPlay(m){
   const ms=C.missionState(st,m.id),status=C.status(st,m.id);
   $('#pTags').innerHTML=`<span class="tag l-${m.lang}">${LANG[m.lang]}</span><span class="tag m-${m.mode}">${m.mode==='fix'?'Fix the script':'Fill the blanks'}</span><span class="tag s-${status}">${STATUS[status]}</span>${pips(ms.box)}${m.recurring?'<span class="tag hot">🔥 Repeat-miss concept</span>':''}`;
   const bugs=m.b.filter(b=>b.bug).length;
-  $('#pBrief').innerHTML=`<p>${m.scenario}</p>${P.fix?`<p style="margin-top:.45rem;color:var(--muted);font-size:.88rem">This script has <b>${bugs} bug${bugs>1?'s':''}</b>. Select any dotted token to change it. Changing a token that was already right counts as a miss.</p>`:`<p style="margin-top:.45rem;color:var(--muted);font-size:.88rem">Select each blue blank and pick the token that makes the script do exactly what the brief asks.</p>`}`;
+  $('#pBrief').innerHTML=`<h3 class="bh">Scenario</h3><p class="scen">${m.scenario}</p>${(m.req||[]).length?`<h3 class="bh">Requirements</h3><ul class="req">${m.req.map(r=>`<li>${r}</li>`).join('')}</ul>`:''}<p class="instr">${P.fix?`This script has <b>${bugs} bug${bugs>1?'s':''}</b>. Select any dotted token to change it. Changing a token that was already right counts as a miss.`:'Select each blue blank and pick the token that makes the script meet every requirement.'}</p>`;
   $('#pSymptom').innerHTML=P.fix&&m.symptom?`<div class="symptom"><header>✗ What happened when it ran</header><pre>${esc(m.symptom)}</pre></div>`:'';
   $('#pFile').textContent=m.file;$('#pLang').textContent=LANG[m.lang];
   $('#pConcepts').innerHTML=m.tags.map(t=>`<span class="${heat(t)>=3?'h':''}" title="${esc(D.concepts[t].src)}">${esc(D.concepts[t].label)}</span>`).join('');
@@ -143,6 +183,8 @@ function startPlay(m){
   feedback('',P.fix?'Read the symptom, then find the tokens that cause it.':'Pick a blank to start. Every choice is checked instantly.');
   $('#pTerm').classList.add('hidden');$('#pOut').textContent='';$('#pDone').innerHTML='';
   if(run&&run.ids.includes(m.id)){$('#pRunCard').classList.remove('hidden');$('#pRun').innerHTML=`<ol style="margin:0;padding-left:1.1rem;font-size:.85rem">${run.ids.map((id,i)=>`<li style="${id===m.id?'font-weight:700':i<run.i?'color:var(--muted);text-decoration:line-through':''}">${esc(byId[id].title)}</li>`).join('')}</ol>`}else $('#pRunCard').classList.add('hidden');
+  const di=P.dn?P.dn-1:-1;$('#pLayout').classList.toggle('with-rail',di>=0);$('#pRail').classList.toggle('hidden',di<0);
+  if(di>=0){$('#pEyebrow').textContent=`Study drill #${P.dn} of ${N} · `+$('#pEyebrow').textContent;$('#pRunCard').classList.add('hidden');renderRail(di)}
   renderCode();updateStats();topBar();
   window.scrollTo({top:0});
 }
@@ -244,7 +286,9 @@ function finish(){
   if(clean)P.xp+=25;
   st=load();
   const before=C.missionState(st,m.id).box;
-  const rec=C.recordRun(st,m.id,P.misses,P.xp);save();topBar();updateStats();
+  const rec=C.recordRun(st,m.id,P.misses,P.xp);
+  if(P.dn){const d=drill(),prev=d.res[m.id];d.res[m.id]=clean?(prev==='miss'||prev==='fixed'?'fixed':'clean'):'miss';d.pos=P.dn%N}
+  save();if(P.dn)renderRail(P.dn-1);topBar();updateStats();
   if(LS){const scored=P.toks.filter((t,k)=>!P.fix||m.b[k].bug);LS.logRun({gameId:'cts',id:m.id,title:m.title,mode:m.mode,lang:LANG[m.lang],domain:DOM[m.domains[0]],domains:m.domains.map(d=>DOM[d]).join(', '),concepts:m.tags.join(', '),blanks:m.b.length,misses:P.misses,clean,xp:P.xp,level:rec.box,due:rec.due,missed:P.missed.join('; '),score:Math.round(scored.filter(t=>!t.miss).length/Math.max(scored.length,1)*100)})}
   $('#pHint').disabled=true;
   feedback('good',`<span class="lbl">▶ Running ${esc(m.file)}…</span>`);
@@ -256,17 +300,18 @@ function finish(){
   tick();
   function done(){
     out.innerHTML+=`\n<span class="ok">✓ exit 0</span>`;
-    const run=getRun();let nextId=null;
-    if(run&&run.ids[run.i]===m.id){run.i++;setRun(run);nextId=run.ids[run.i]||null}
+    const run=getRun();let nextId=null,nextDn=0;
+    if(P.dn){const t=dTarget(P.dn%N);if(t>=0)nextDn=t+1}
+    else if(run&&run.ids[run.i]===m.id){run.i++;setRun(run);nextId=run.ids[run.i]||null}
     else{const r=rank().find(e=>e.mission.id!==m.id&&(e.status==='new'||e.status==='due'));nextId=r?r.mission.id:null}
     const due=rec.due,lvl=Math.min(rec.box,C.MASTER_BOX);
     const sched=clean?(lvl>=C.MASTER_BOX?`Mastered 🎉 Next spaced review on ${due}.`:rec.box>before?`Level ${lvl}/${C.MASTER_BOX}. Back for review on ${due}.`:`Already promoted today; review on ${due}.`):`Level reset to 0. This script and its concepts move up your queue.`;
     $('#pDone').innerHTML=`<div class="done-panel ${clean?'':'miss'}"><h2 style="margin:0">${clean?'Clean run ✓':'Script complete'}: +${P.xp} XP</h2>
       <p style="margin:.3rem 0 0;color:var(--muted)">${P.misses} miss${P.misses===1?'':'es'} · best combo ×${P.best} · ${esc(sched)}</p>
       <ul class="recap">${m.b.map((b,i)=>{const t=P.toks[i];return `<li class="${t.miss?'missed':''}"><b>${i+1}.</b> <code>${esc(t.val)}</code> ${b.why}${t.miss?` <span style="color:var(--red)">(${t.miss} miss${t.miss>1?'es':''})</span>`:''}</li>`}).join('')}</ul>
-      <div class="actions">${nextId?`<button class="btn" id="dNext">${run&&run.ids.includes(nextId)?'Next in run':'Next script'} →</button>`:''}<button class="btn sec" id="dAgain">Replay</button><button class="btn sec" id="dBoard">All scripts</button></div></div>`;
-    if(nextId)$('#dNext').onclick=()=>go(nextId);
-    $('#dAgain').onclick=()=>startPlay(m);$('#dBoard').onclick=()=>go(null);
+      <div class="actions">${nextDn?`<button class="btn" id="dNext">${dres(nextDn-1)==='miss'?'Retry':'Next:'} #${nextDn} ${esc(byId[ORDER[nextDn-1]].title)} →</button>`:P.dn?`<span class="tag s-mastered" style="align-self:center">Drill cleared ✓</span>`:nextId?`<button class="btn" id="dNext">${run&&run.ids.includes(nextId)?'Next in run':'Next script'} →</button>`:''}<button class="btn sec" id="dAgain">Replay</button><button class="btn sec" id="dBoard">All scripts</button></div></div>`;
+    if(nextDn)$('#dNext').onclick=()=>goDrill(nextDn);else if(nextId)$('#dNext').onclick=()=>go(nextId);
+    $('#dAgain').onclick=()=>startPlay(m,P.dn);$('#dBoard').onclick=()=>go(null);
     ($('#dNext')||$('#dBoard')).focus({preventScroll:true});
     $('#pDone').scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
   }
@@ -277,6 +322,7 @@ function go(id){location.hash=id?'s='+encodeURIComponent(id):''}
 function route(){
   closeMenu();
   const h=location.hash.slice(1),id=h.startsWith('s=')?decodeURIComponent(h.slice(2)):null;
+  if(h.startsWith('d=')){const n=Math.min(Math.max(parseInt(h.slice(2),10)||1,1),N);st=load();drill().pos=n-1;save();$('#board').classList.add('hidden');$('#play').classList.remove('hidden');startPlay(byId[ORDER[n-1]],n);return}
   if(h==='run'){let r=getRun();if(!r||r.i>=r.ids.length){r={day:C.today(),ids:todayRun(),i:0};setRun(r)}go(r.ids[r.i]);return}
   if(id&&byId[id]){$('#board').classList.add('hidden');$('#play').classList.remove('hidden');startPlay(byId[id])}
   else{$('#play').classList.add('hidden');$('#board').classList.remove('hidden');P=null;renderBoard()}
