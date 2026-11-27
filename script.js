@@ -174,7 +174,9 @@ function startPlay(m,dn){
   const ms=C.missionState(st,m.id),status=C.status(st,m.id);
   $('#pTags').innerHTML=`<span class="tag l-${m.lang}">${LANG[m.lang]}</span><span class="tag m-${m.mode}">${m.mode==='fix'?'Fix the script':'Fill the blanks'}</span><span class="tag s-${status}">${STATUS[status]}</span>${pips(ms.box)}${m.recurring?'<span class="tag hot">🔥 Repeat-miss concept</span>':''}`;
   const bugs=m.b.filter(b=>b.bug).length;
-  $('#pBrief').innerHTML=`<h3 class="bh">Scenario</h3><p class="scen">${m.scenario}</p>${(m.req||[]).length?`<h3 class="bh">Requirements</h3><ul class="req">${m.req.map(r=>`<li>${r}</li>`).join('')}</ul>`:''}<p class="instr">${P.fix?`This script has <b>${bugs} bug${bugs>1?'s':''}</b>. Select any dotted token to change it. Changing a token that was already right counts as a miss.`:'Select each blue blank and pick the token that makes the script meet every requirement.'}</p>`;
+  const noun={azcli:'Azure CLI script',pwsh:'PowerShell script',bicep:'Bicep file',json:'ARM template',kql:'KQL query'}[m.lang]||'script';
+  const q=P.fix?`The ${noun} doesn’t meet the requirements. Which ${bugs===1?'token':bugs+' tokens'} should you change?`:`How should you complete the ${noun} to meet the requirements?`;
+  $('#pBrief').innerHTML=`<p class="scen">${m.scenario}</p><p class="ask">${m.ask||'You need to ensure that the solution meets the following requirements:'}</p>${(m.req||[]).length?`<ul class="req">${m.req.map(r=>`<li>${r}</li>`).join('')}</ul>`:''}<p class="q">${q}</p><p class="instr">${P.fix?`Select any dotted token to change it. Changing a token that was already right counts as a miss.`:`Select the correct option in each blank. Each blank is scored on its own.`}</p>`;
   $('#pSymptom').innerHTML=P.fix&&m.symptom?`<div class="symptom"><header>✗ What happened when it ran</header><pre>${esc(m.symptom)}</pre></div>`:'';
   $('#pFile').textContent=m.file;$('#pLang').textContent=LANG[m.lang];
   $('#pConcepts').innerHTML=m.tags.map(t=>`<span class="${heat(t)>=3?'h':''}" title="${esc(D.concepts[t].src)}">${esc(D.concepts[t].label)}</span>`).join('');

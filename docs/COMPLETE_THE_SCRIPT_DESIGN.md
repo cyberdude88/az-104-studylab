@@ -89,12 +89,14 @@ A third way in, next to Today's run and the grid: **every script once, in a fixe
 * **Start over** clears the drill marks only. Levels, XP, spaced review and concept heat are kept, because every drill run is still recorded through `BenchCore.recordRun`.
 * **State:** `cts.drill = { pos, res: { <script-id>: 'clean' | 'miss' | 'fixed' } }` in `az104.benchmarks.v1`. Export and Import include it. Sheet sync leaves it alone.
 
-## Brief layout (added 2026-11-26)
+## Brief layout (exam style, 2026-11-26)
 
-Every brief has three parts, with space between them:
+Every brief follows the format of an exam question, with space between the parts:
 
-1. **Scenario:** one or two sentences of context (`scenario`). It holds no requirements. In fix-it scripts it also says what went wrong.
-2. **Requirements:** one bullet per requirement (`req: [...]`), so each one can be checked against a blank.
-3. **Instructions:** a muted line under a rule, such as "Select each blue blank…" or "This script has N bugs…".
+1. **Scenario** (`scenario`): two or three sentences of context, with no requirements and no bold hints. In fix-it scripts it also says what went wrong.
+2. **Lead-in** (`ask`): for example, "You need to ensure that the peering meets the following requirements:"
+3. **Requirements** (`req`): 3 to 5 bullets written as business outcomes or constraints, such as least privilege, minimizing cost or minimizing administrative effort. Every blank must be decided by at least one requirement.
+4. **Question:** generated from the language. Fill-in scripts ask "How should you complete the Azure CLI script / PowerShell script / Bicep file / ARM template / KQL query to meet the requirements?" Fix-it scripts say "The … doesn't meet the requirements. Which token(s) should you change?"
+5. **Instructions:** a muted line under a rule.
 
-A new script must have both `scenario` and a non-empty `req`.
+A new script needs `scenario`, `ask` and at least 3 `req` items.
