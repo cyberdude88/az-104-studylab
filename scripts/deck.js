@@ -25,6 +25,7 @@ const concepts={
   'vault':{label:'Recovery Services vault settings',w:2,src:'NOV25 miss',nov:['vault-create','vault-delete']},
   'blob-version':{label:'Blob versioning and change feed',w:2,src:'NOV25 miss',nov:['blob-versioning']},
   'app-service':{label:'App Service plans, slots and tiers',w:2,src:'NOV25 miss',nov:['webjobs']},
+  'files-order':{label:'Azure Files with a key: account → key → context → share → cmdkey → map',w:2,src:'Practice miss 2026-11-27'},
   'files':{label:'Azure Files access: SMB 445, share-level RBAC',w:2,src:'NOV25 miss',nov:['files-onprem']},
   'entra':{label:'Entra users, guests and groups',w:2,src:'Tracker: High',nov:['sspr']},
   'rbac':{label:'RBAC: who can assign roles, scope, least privilege',w:2,src:'Tracker: High'},
@@ -405,6 +406,49 @@ b:[{a:'SMB',o:['NFS'],t:'files',why:'Windows clients with AD identities use SMB.
 {a:'"Storage File Data SMB Share Contributor"',o:['"Storage File Data SMB Share Reader"','"Storage File Data SMB Share Elevated Contributor"','"Storage Account Contributor"'],t:'rbac',why:'Contributor = read, write, delete. NTFS ACLs still apply on top of the share-level role.',w:{'"Storage File Data SMB Share Reader"':'Read only.','"Storage File Data SMB Share Elevated Contributor"':'Also lets them change NTFS permissions, which is ruled out.','"Storage Account Contributor"':'Management plane only; grants no file data access over SMB.'}},
 {a:'TCP 445',o:['TCP 443','TCP 2049','TCP 3389'],t:'files',why:'SMB uses TCP 445. Many ISPs block it outbound; VPN or ExpressRoute work around that.',w:{'TCP 443':'HTTPS (REST, File Sync). Not SMB mounts.','TCP 2049':'NFS.','TCP 3389':'RDP.'}}],
 out:['{ "name": "staff", "enabledProtocols": "SMB", "shareQuota": 1024 }','{ "roleDefinitionName": "Storage File Data SMB Share Contributor" }','PS> Test-NetConnection stgranitefiles.file.core.windows.net -Port 445 → TcpTestSucceeded : True']});
+
+S({id:'files-map-key',mode:'complete',lang:'pwsh',domains:['storage','compute'],tags:['files-order','files'],file:'admin-share.ps1',
+title:'Create a file share and map it on Windows servers with the account key',
+scenario:'Halvern Freight runs three Windows Server 2022 VMs in <code>rg-halvern-ops</code>. The admins want a shared <code>adminfiles</code> folder in Azure Files that shows up as drive Z: on every server. The servers aren’t domain-joined, so the share will be reached with the storage account key.',
+ask:'You need to ensure that the solution meets the following requirements:',
+req:['A new StorageV2 account named <code>sthalvernadmin</code> holds the share.','The share is created with the data-plane cmdlets, authorized by the account key.','Each server stores the credential, so the drive reconnects without asking for the key again.','Drive Z: is mapped to <code>adminfiles</code> and is still there after a reboot.','Run the steps in an order where each one has what it needs from the step before.'],
+learn:[['Create an Azure file share (PowerShell)',L+'azure/storage/files/storage-how-to-create-file-share'],['Mount an SMB Azure file share on Windows',L+'azure/storage/files/storage-how-to-use-files-windows'],['Manage storage account access keys',L+'azure/storage/common/storage-account-keys-manage']],
+code:String.raw`# Signed in with Connect-AzAccount; rg-halvern-ops already exists.
+
+# Step 1
+{{1}} -ResourceGroupName "rg-halvern-ops" ~
+    -Name "sthalvernadmin" -Location "canadacentral" ~
+    -SkuName "Standard_LRS" -Kind "StorageV2"
+
+# Step 2
+$key = ({{2}} -ResourceGroupName "rg-halvern-ops" ~
+    -Name "sthalvernadmin")[0].Value
+
+# Step 3
+$ctx = {{3}} -StorageAccountName "sthalvernadmin" ~
+    -StorageAccountKey $key
+
+# Step 4
+{{4}} -Name "adminfiles" -Context $ctx
+
+# ---- On each Windows server, as the admin who will use Z: ----
+
+# Step 5
+{{5}} /add:sthalvernadmin.file.core.windows.net ~
+    /user:localhost\sthalvernadmin
+
+# Step 6
+{{6}} -Name Z -PSProvider FileSystem ~
+    -Root "\\sthalvernadmin.file.core.windows.net\adminfiles" ~
+    {{7}} -Scope Global`,
+b:[{a:'New-AzStorageAccount',o:['New-AzStorageShare','Get-AzStorageAccountKey','New-AzStorageContext'],t:'files-order',why:'<b>Step 1: the account.</b> Everything else lives inside it: the keys, the context and the share. Nothing can come before it.',w:{'New-AzStorageShare':'A share needs an account (and a context for it) to live in. That’s step 4.','Get-AzStorageAccountKey':'There are no keys until the account exists.','New-AzStorageContext':'A context points at an account name and key. Neither exists yet.'}},
+{a:'Get-AzStorageAccountKey',o:['New-AzStorageContext','Get-AzStorageAccount','New-AzStorageAccountKey'],t:'files-order',why:'<b>Step 2: the key.</b> The account comes with two keys (key1, key2); <code>[0].Value</code> takes key1. The context in step 3 and the saved credential in step 5 both need it.',w:{'New-AzStorageContext':'Needs <code>$key</code> as input, so it can’t run until the key has been read.','Get-AzStorageAccount':'Returns the account object, not its key values.','New-AzStorageAccountKey':'Regenerates (rotates) a key. That breaks anything already using it; you only need to read one.'}},
+{a:'New-AzStorageContext',o:['New-AzStorageShare','Set-AzStorageAccount','Get-AzStorageAccountKey'],t:'files-order',why:'<b>Step 3: the connection.</b> A context bundles the account name and key. Data-plane cmdlets such as <code>New-AzStorageShare</code> take <code>-Context</code> to know where to go and how to authorize.',w:{'New-AzStorageShare':'That’s the step that <i>uses</i> <code>$ctx</code>. Without a context it has no account or key.','Set-AzStorageAccount':'Changes account settings (SKU, TLS, firewall). It doesn’t produce a context.','Get-AzStorageAccountKey':'Already done in step 2. The key goes <i>into</i> the context.'}},
+{a:'New-AzStorageShare',o:['New-AzRmStorageShare','New-PSDrive','New-AzStorageContainer'],t:'files-order',why:'<b>Step 4: the share.</b> Created inside the account through the key-based context. This is the last Azure-side step; the rest runs on the servers.',w:{'New-AzRmStorageShare':'Creates a share through the management plane (resource provider) with -ResourceGroupName and -StorageAccountName. It doesn’t take -Context, and the brief asks for the key-authorized data-plane cmdlet.','New-PSDrive':'Maps a share on a client. You can’t map a share that doesn’t exist yet.','New-AzStorageContainer':'Creates a blob container, not a file share.'}},
+{a:'cmdkey',o:['New-PSDrive','net use','Set-AzStorageAccount'],t:'files-order',why:'<b>Step 5: save the credential.</b> <code>cmdkey /add</code> stores the account name (as <code>localhost\\account</code>) and key in Windows Credential Manager for this user. With no <code>/pass</code> it prompts once for the key (paste key1 from step 2); after that, mapping and every reconnect after reboot work without a prompt.',w:{'New-PSDrive':'That’s step 6. Saving the credential first means the mapping (and every reconnect after reboot) authenticates silently.','net use':'It can map a drive, but it’s not how you store the credential. Without cmdkey the mapping prompts or fails to reconnect.','Set-AzStorageAccount':'Runs against Azure, not the Windows server. It stores nothing locally.'}},
+{a:'New-PSDrive',o:['Mount-AzStorageShare','New-SmbShare','cmdkey'],t:'files-order',why:'<b>Step 6: map the drive.</b> <code>New-PSDrive -PSProvider FileSystem -Root \\\\account.file.core.windows.net\\share</code> maps Z: over SMB (TCP 445) using the credential saved in step 5.',w:{'Mount-AzStorageShare':'Not a real cmdlet.','New-SmbShare':'Creates a share <i>on</i> this server for others to use. The opposite direction.','cmdkey':'Already done in step 5. It stores credentials; it doesn’t map a drive.'}},
+{a:'-Persist',o:['-Credential $key','-Force','-Scope Local'],t:'files',why:'<code>-Persist</code> makes it a real Windows mapped drive that reconnects after a reboot. Without it the drive only lives in the current PowerShell session.',w:{'-Credential $key':'-Credential takes a PSCredential object, not a plain key string, and the credential was already saved with cmdkey.','-Force':'Not what keeps a mapping. The drive would still vanish when the session ends.','-Scope Local':'Narrows the drive to the current scope. It’s the opposite of what you want, and -Scope Global is already set.'}}],
+out:['StorageAccountName ResourceGroupName Location      SkuName      Kind','------------------ ----------------- --------      -------      ----','sthalvernadmin     rg-halvern-ops    canadacentral Standard_LRS StorageV2','Name       : adminfiles   (share created via key context)','CMDKEY: Credential added successfully.','Name  Used (GB)  Free (GB) Provider    Root','----  ---------  --------- --------    ----','Z                         FileSystem  \\\\sthalvernadmin.file.core.windows.net\\adminfiles']});
 
 S({id:'azcopy-archive',mode:'fix',lang:'azcli',domains:['storage'],tags:['azcopy'],file:'archive-footage.sh',
 title:'Fix it: the footage migration copied nothing',
@@ -1261,7 +1305,8 @@ const drill=[
   'adls-acl','app-slots','web-bicep','disk-sku','vmss-flex','snapshot-restore','avset','branch-landing','nsg-layers','backup-enhanced',
   'guest-auditor','dynamic-group','private-dns','lb-standard','aci-etl','rbac-assign-fix','mi-blob','ir-isolate','nat-gw','vpn-s2s',
   'vm-zone-resize','redundancy','soft-delete','alerts-stack','sas-policy','ud-sas','custom-role','lock-trap','move-vm','diag-blob',
-  'kql-activity','kql-heartbeat','ama-dcr','aca-telemetry'
+  'kql-activity','kql-heartbeat','ama-dcr','aca-telemetry',
+  'files-map-key'
 ];
 
 window.CTS_DECK={id:'cts',title:'Complete the Script',concepts,missions:s,drill};
